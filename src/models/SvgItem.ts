@@ -23,7 +23,7 @@ class SvgItem {
         let paths = "";
         for (let i = 0; i < items.length; i++) {
             const element = items[i];
-            paths += `<path d="`+element.getPath()+`" />`;
+            paths += `<path stroke="`+element.strokeColor+`" d="`+element.getPath()+`" />`;
         }
         return svg.replace("{SVG}", paths);
     }

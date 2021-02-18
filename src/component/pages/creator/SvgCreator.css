@@ -12,7 +12,7 @@
 
 }
 .svg-sheet {
-    border-width: 3px;
+    border: solid 3px #323232
 }
 .path-selectable {
     cursor: pointer;

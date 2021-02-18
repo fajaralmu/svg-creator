@@ -47,7 +47,7 @@ class SvgCreator extends BaseComponent {
         element.points.push(p);
         this.updateSelectedElement(element);
     }
-    updateSelectedElementStrokeColor = (e:ChangeEvent) => {
+    updateSelectedElementStrokeColor = (e: ChangeEvent) => {
         const target = e.target as HTMLInputElement;
         const element = this.getSelectedElement();
         element.strokeColor = target.value;
@@ -114,10 +114,11 @@ class SvgCreator extends BaseComponent {
                 <div className="col-md-8 svg-wrapper text-center" style={{
                     backgroundImage: 'url(' + this.props.imageData + ')',
                 }}>
-                    <svg className="border border-dark svg-sheet" width={size} height={size}>
-                        <g fill="transparent"  className="svg-path">
+                    <svg className=" svg-sheet" width={size} height={size}>
+                        <g fill="transparent" className="svg-path">
                             {elements.map((element, i) => {
-                                return <path stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"} strokeWidth={selectedIndex == i ? 3 : 1} key={"path-" + i} d={element.getPath()} />
+                                return <path stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"} 
+                                strokeWidth={selectedIndex == i ? 4 : 2} key={"path-" + i} d={element.getPath()} />
                             })}
                         </g>
                         {editMode ?
@@ -131,11 +132,7 @@ class SvgCreator extends BaseComponent {
                 <div className="col-md-4">
                     <form className="container-fluid border border-info" onSubmit={(e) => e.preventDefault()}>
                         <h4>Options</h4>
-                        <FormGroup label="Element Count">
-                            <AnchorWithIcon className="btn btn-dark btn-sm" iconClassName="fas fa-plus" onClick={this.addSvgElement} >
-                                {this.state.svgElements.length}
-                            </AnchorWithIcon>
-                        </FormGroup>
+
                         <FormGroup label="Selected Index">
                             {this.state.selectedIndex}
                         </FormGroup>
@@ -144,9 +141,9 @@ class SvgCreator extends BaseComponent {
                                 onClick={this.updateClosePath} />
                         </FormGroup>
                         <FormGroup label="Stroke Color">
-                           <input type="color" className="form-control" value={element.strokeColor}
-                           onChange={this.updateSelectedElementStrokeColor}
-                           />
+                            <input type="color" className="form-control" value={element.strokeColor}
+                                onChange={this.updateSelectedElementStrokeColor}
+                            />
                         </FormGroup>
                         <FormGroup  >
                             <AnchorWithIcon onClick={this.removeSelectedElement} iconClassName="fas fa-times"
@@ -157,6 +154,11 @@ class SvgCreator extends BaseComponent {
             </div>
             <p />
             <form onSubmit={(e) => e.preventDefault()}>
+                <FormGroup label="Element Count">
+                    <AnchorWithIcon className="btn btn-dark btn-sm" iconClassName="fas fa-plus" onClick={this.addSvgElement} >
+                        {this.state.svgElements.length}
+                    </AnchorWithIcon>
+                </FormGroup>
                 <FormGroup label="Edit Mode">
                     <ToggleButton active={this.state.editMode == true} onClick={this.setEditMode} />
                     <p><i>{this.state.editMode == false ? "Select path to edit" : null}</i></p>

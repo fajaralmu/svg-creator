@@ -68,10 +68,10 @@ class Header extends BaseComponent {
                                 )
                             })}
                         </ul >
-                        <form className="form-inline my-2 my-lg-0">
+                        {/* <form className="form-inline my-2 my-lg-0">
                             <UserIcon setMenuNull={this.props.setMenuNull}
                                 onLogout={this.onLogout} user={user} />
-                        </form >
+                        </form > */}
                     </div >
                 </nav >
             </div>
