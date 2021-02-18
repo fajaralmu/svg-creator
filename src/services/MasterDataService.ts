@@ -6,15 +6,12 @@ import { commonAjaxPostCalls, commonAjaxPostCallsWithBlob } from './Promises';
 import BaseEntity from './../models/BaseEntity';
 import ManagementProperty from '../models/ManagementProperty';
 import EntityProperty from '../models/settings/EntityProperty';
-import ApplicationProfile from './../models/ApplicationProfile';
-import HealthCenter from './../models/HealthCenter';
-import Configuration from './../models/Configuration';
+import ApplicationProfile from './../models/ApplicationProfile'; 
 
 export default class MasterDataService {
   
     managementProperties: ManagementProperty[] = [];
-    private entityPropertyMap: Map<string, EntityProperty> = new Map();
-    private healthCenters: HealthCenter[] = [];
+    private entityPropertyMap: Map<string, EntityProperty> = new Map(); 
     private static instance?: MasterDataService;
 
     static getInstance(): MasterDataService {
@@ -163,20 +160,7 @@ export default class MasterDataService {
         const endpoint = contextPath().concat("api/app/setting/updateprofile");
         return commonAjaxPostCalls(endpoint, request)
     }
-    updateConfiguration = (config:Configuration) => {
-        const request: WebRequest = {
-           inventoryConfiguration: config
-        }
-        const endpoint = contextPath().concat("api/app/setting/updateconfig");
-        return commonAjaxPostCalls(endpoint, request)
-    }
-
-    setHealthCenters = (healthCenters:HealthCenter[]) => {
-        this.healthCenters = healthCenters;
-    }
-    getHealthCenters = () :HealthCenter[] => {
-        return this.healthCenters;
-    }
+   
 
     generateReport(request: WebRequest) {
         const endpoint: string = contextPath().concat("api/app/report/records");

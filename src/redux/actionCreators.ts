@@ -2,8 +2,7 @@ import * as types from './types'
 import * as url from '../constant/Url'
 import { contextPath } from '../constant/Url'; 
 import User from './../models/User';
-import ApplicationProfile from './../models/ApplicationProfile';
-import InventoryData from '../models/stock/InventoryData';
+import ApplicationProfile from './../models/ApplicationProfile'; 
 import WebResponse from '../models/common/WebResponse';
 
 const usedHost = url.contextPath();
@@ -127,13 +126,7 @@ export const  setMainApp = (mainApp:any) => ({
     payload: mainApp,
     meta: { type: types.SET_MAIN_APP }
 })
- 
-export const  setInventoryData = (payload: WebResponse) => ({
-    type: types.SET_INVENTORY_DATA,
-    payload: {inventoryData:payload.inventoryData, inventoryConfig: payload.configuration},
-    meta: { type: types.SET_INVENTORY_DATA }
-})
-
+  
 export const setRequestId = (data:WebResponse, app) => {
    
     const ret= {

@@ -1,32 +1,28 @@
 import { Component } from 'react';
-import { byId } from '../utils/ComponentUtil';
 import WebResponse from '../models/common/WebResponse';
 import ApplicationProfile from './../models/ApplicationProfile';
 import User from './../models/User';
 import Services from './../services/Services';
-import HealthCenter from './../models/HealthCenter';
-import InventoryData from '../models/stock/InventoryData';
-import Configuration from './../models/Configuration';
 
 export default class BaseComponent extends Component<any, any> {
     parentApp: any;
     authenticated: boolean = true;
     state: any = { updated: new Date() };
-    constructor(props: any, authenticated = false ) {
+    constructor(props: any, authenticated = false) {
         super(props);
-        
+
         this.authenticated = authenticated
         this.state = {
             ...this.state
         }
         this.parentApp = this.props.mainApp;
-       
+
     }
-  
-    setPageTitle = (title:string) => {
+
+    setPageTitle = (title: string) => {
         document.title = title;
     }
-    validateLoginStatus = (callback ?:()=>void) => {
+    validateLoginStatus = (callback?: () => void) => {
         if (this.authenticated == false) {
             if (callback) {
                 callback();
@@ -35,28 +31,27 @@ export default class BaseComponent extends Component<any, any> {
         }
         if (this.isLoggedUserNull()) {
             this.backToLogin();
-        }else {
+        } else {
             if (callback) {
                 callback();
             }
         }
     }
 
-    getApplicationProfile():ApplicationProfile
-    {
-        const profile:ApplicationProfile = new ApplicationProfile();
+    getApplicationProfile(): ApplicationProfile {
+        const profile: ApplicationProfile = new ApplicationProfile();
         profile.name = "SVG generator";
         return profile;
         // return this.props.applicationProfile == null ? new ApplicationProfile() : this.props.applicationProfile;
     }
 
-    handleInputChange = (event: any) =>{
+    handleInputChange = (event: any) => {
         const target = event.target;
         const value = target.type == 'checkbox' ? target.checked : target.value;
         this.setState({ [target.name]: value });
         console.debug("input changed: ", target.name, value);
     }
- 
+
     /**
      * 
      * @param {boolean} withProgress 
@@ -76,10 +71,10 @@ export default class BaseComponent extends Component<any, any> {
      * @param errorCallback 
      * @param params 
      */
-    doAjax(method: Function, withProgress: boolean, successCallback: Function, errorCallback?: Function, ...params: any ) {
+    doAjax(method: Function, withProgress: boolean, successCallback: Function, errorCallback?: Function, ...params: any) {
         this.startLoading(withProgress);
 
-        method(...params).then(function (response:WebResponse) {
+        method(...params).then(function (response: WebResponse) {
             if (successCallback) {
                 successCallback(response);
             }
@@ -92,19 +87,19 @@ export default class BaseComponent extends Component<any, any> {
                 }
                 alert("resource not found");
             }
-        }).finally((e:any) => {
+        }).finally((e: any) => {
             this.endLoading();
         })
     }
 
-    commonAjax(method: Function, successCallback: Function, errorCallback: Function, ...params:any) {
+    commonAjax(method: Function, successCallback: Function, errorCallback: Function, ...params: any) {
         this.doAjax(method, false, successCallback, errorCallback, ...params);
     }
-    commonAjaxWithProgress(method: Function, successCallback: Function, errorCallback: Function, ...params:any) {
+    commonAjaxWithProgress(method: Function, successCallback: Function, errorCallback: Function, ...params: any) {
         this.doAjax(method, true, successCallback, errorCallback, ...params);
     }
-    getLoggedUser():User|undefined {
-        const user:User|undefined = this.props.loggedUser;
+    getLoggedUser(): User | undefined {
+        const user: User | undefined = this.props.loggedUser;
         if (!user) return undefined;
         user.password = "^_^";
         return user;
@@ -115,9 +110,9 @@ export default class BaseComponent extends Component<any, any> {
     isUserLoggedIn(): boolean {
         return true == this.props.loginStatus && null != this.props.loggedUser;
     }
-    showConfirmation(body:any): Promise<boolean> {
+    showConfirmation(body: any): Promise<boolean> {
         const app = this;
-        return new Promise(function(resolve, reject){
+        return new Promise(function (resolve, reject) {
             const onYes = function (e) {
                 resolve(true);
             }
@@ -126,11 +121,11 @@ export default class BaseComponent extends Component<any, any> {
             }
             app.parentApp.showAlert("Konfirmasi", body, false, onYes, onNo);
         });
-  
+
     }
     showConfirmationDanger(body: any): Promise<any> {
         const app = this;
-        return new Promise(function(resolve, reject){
+        return new Promise(function (resolve, reject) {
             const onYes = function (e) {
                 resolve(true);
             }
@@ -158,26 +153,26 @@ export default class BaseComponent extends Component<any, any> {
         this.setState({ updated: new Date() });
     }
 
-    showCommonErrorAlert = (e:any) => {
+    showCommonErrorAlert = (e: any) => {
         console.error(e);
-        
+
         let message;
-        if (e.response && e.response.data ) {
+        if (e.response && e.response.data) {
             message = e.response.data.message;
         } else {
             message = e;
-        } 
-        this.showError("Operation Failed: "+message);
+        }
+        this.showError("Operation Failed: " + message);
     }
 
     componentDidUpdate() {
         if (this.authenticated == true && this.isLoggedUserNull()) {
-            console.debug(typeof this , "BACK TO LOGIN");
+            console.debug(typeof this, "BACK TO LOGIN");
             this.validateLoginStatus();
         }
     }
 
-    getServices = () : Services => {
+    getServices = (): Services => {
         return this.props.services;
     }
 }

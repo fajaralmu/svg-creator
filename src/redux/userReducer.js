@@ -1,6 +1,5 @@
 import * as types from './types'
-import * as menuData from '../constant/Menus'
-import HealthCenter from './../models/HealthCenter';
+import * as menuData from '../constant/Menus' 
 import ApplicationProfile from './../models/ApplicationProfile';
 import { updateAccessToken, setLoginKeyCookie } from './../middlewares/Common';
 
@@ -12,8 +11,7 @@ export const initState = {
     loggedUser: null,
     loginAttempt: false,
     requestId: null,
-    applicationProfile: new ApplicationProfile(),
-    masterHealthCenter: new HealthCenter(),
+    applicationProfile: new ApplicationProfile(), 
     assetsPath: "/",
 };
 
@@ -25,8 +23,7 @@ export const reducer = (state = initState, action) => {
         case types.SET_REQUEST_ID: 
             console.debug("USER REDUCER:REQUEST_ID", action.payload.requestId);
             result = {
-                ...state, requestId: action.payload.requestId,
-                masterHealthCenter: action.payload.masterHealthCenter??{},
+                ...state, requestId: action.payload.requestId, 
                 applicationProfile: action.payload.applicationProfile ?? {},
                 assetsPath: action.payload.applicationProfile.assetsPath
             };

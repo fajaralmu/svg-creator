@@ -14,6 +14,6 @@
 .svg-sheet {
     border-width: 3px;
 }
-.path-selectable :hover{
+.path-selectable {
     cursor: pointer;
 }

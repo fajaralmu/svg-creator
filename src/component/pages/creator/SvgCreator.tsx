@@ -7,30 +7,16 @@ import './SvgCreator.css'
 import { mapCommonUserStateToProps } from '../../../constant/stores';
 import { connect } from 'react-redux';
 import ToggleButton from '../../navigation/ToggleButton';
-class SvgPoint {
-    x: number = 0; y: number = 0;
-}
-class SvgElement {
-    points: SvgPoint[] = [];
-    closePath: boolean = false;
-    getPath = () => {
-        if (this.points.length < 2) { return "" }
+import SvgItem from '../../../models/SvgItem';
+import SvgPoint from './../../../models/SvgPoint';
 
-        let firstPoint = this.points[0];
-        let path = "M " + firstPoint.x + " " + firstPoint.y;
-        for (let i = 0; i < this.points.length; i++) {
-            const point = this.points[i];
-            path += " L " + point.x + " " + point.y + " ";
-        }
-        return path + (this.closePath ? "Z" : "");
-    }
-}
 class State {
-    svgElements: SvgElement[] = [new SvgElement()];
+    svgElements: SvgItem[] = [new SvgItem()];
     pointColor: string = "#20f08d";
     size: number = 400;
     selectedIndex: number = 0;
     editMode: boolean = true;
+    output?:string;
 }
 class SvgCreator extends BaseComponent {
     state: State = new State();
@@ -48,11 +34,11 @@ class SvgCreator extends BaseComponent {
             console.debug("TAG NAME: ", target.tagName);
             return;
         }
-        const point: SvgPoint = this.getPoint(e, target);
+        const point: SvgPoint = SvgPoint.newInstance(e, target);
         // console.debug("addPoint x: ", point.x, "y: ", point.y);
         this.addPointToCurrentElement(point);
     }
-    getSelectedElement = (): SvgElement => {
+    getSelectedElement = (): SvgItem => {
         const elements = this.state.svgElements;
         return elements[this.state.selectedIndex];
     }
@@ -61,7 +47,7 @@ class SvgCreator extends BaseComponent {
         element.points.push(p);
         this.updateSelectedElement(element);
     }
-    updateSelectedElement = (element: SvgElement) => {
+    updateSelectedElement = (element: SvgItem) => {
         const elements = this.state.svgElements;
         elements[this.state.selectedIndex] = element;
         this.setState({ svgElements: elements });
@@ -71,18 +57,9 @@ class SvgCreator extends BaseComponent {
         element.closePath = value;
         this.updateSelectedElement(element);
     }
-
-    getPoint = (e: React.MouseEvent<SVGRectElement>, target: SVGRectElement): SvgPoint => {
-        var dim = target.getBoundingClientRect();
-        const p = new SvgPoint();
-
-        p.x = e.clientX - dim.left;
-        p.y = e.clientY - dim.top;;
-        return p;
-    }
     addSvgElement = () => {
         const elements = this.state.svgElements;
-        elements.push(new SvgElement);
+        elements.push(new SvgItem);
         this.setState({ svgElements: elements, selectedIndex: elements.length - 1 });
     }
     removeSelectedElement = () => {
@@ -107,21 +84,15 @@ class SvgCreator extends BaseComponent {
         }
         this.updateSelectedElement(element);
     }
-    clearPoints = (e) => {
-        const element = this.getSelectedElement();
-        this.showConfirmationDanger("Clear points?")
-            .then((ok) => {
-                if (!ok) return;
-                element.points = [];
-                this.updateSelectedElement(element);
-            })
-    }
     setEditMode = (val: boolean) => {
         this.setState({ editMode: val });
     }
+    showOutput = () => {
+        this.setState({output: SvgItem.getOutput(this.state.svgElements, this.state.size)});
+    }
     render = () => {
-        const elements: SvgElement[] = this.state.svgElements;
-        const element: SvgElement = this.getSelectedElement();
+        const elements: SvgItem[] = this.state.svgElements;
+        const element: SvgItem = this.getSelectedElement();
         const pointColor = this.state.pointColor;
         const size = this.state.size;
         const selectedIndex = this.state.selectedIndex;
@@ -171,7 +142,7 @@ class SvgCreator extends BaseComponent {
             <form onSubmit={(e) => e.preventDefault()}>
                 <FormGroup label="Edit Mode">
                     <ToggleButton active={this.state.editMode == true} onClick={this.setEditMode} />
-                    <i>{this.state.editMode == false ? "Select path to edit" : null}</i>
+                    <p><i>{this.state.editMode == false ? "Select path to edit" : null}</i></p>
                 </FormGroup>
                 <FormGroup label="Size">
                     <input autoComplete="off" type="number" value={size} onChange={this.handleInputChange}
@@ -181,18 +152,23 @@ class SvgCreator extends BaseComponent {
                     <input autoComplete="off" type="color" value={pointColor} onChange={this.handleInputChange}
                         name="pointColor" className="form-control" />
                 </FormGroup>
-                <FormGroup  >
-                    <AnchorWithIcon className="btn btn-danger" iconClassName="fas fa-times" onClick={this.clearPoints} children="Clear Points" />
+                <FormGroup >
+                    <AnchorWithIcon onClick={this.showOutput} >Show Output</AnchorWithIcon>
                 </FormGroup>
+                <FormGroup label="Ouput">
+                    <code>
+                        {this.state.output}
+                    </code>
+                </FormGroup>
+                
             </form>
         </Modal>
     }
 }
 
-const Points = (props: { pointColor: string, removePoint(index: number): any, element: SvgElement }) => {
+const Points = (props: { pointColor: string, removePoint(index: number): any, element: SvgItem }) => {
     return (
         <g fill={props.pointColor} stroke="rgb(0,0,0)" strokeWidth={1} className="svg-points">
-            {/* {props.elements.map((element, e) => { */}
             {        props.element.points.map((p, i) => {
                 return (
                     <circle strokeWidth={i == 0 ? 3 : 1} className="svg-point" onClick={(e) => {
@@ -202,7 +178,6 @@ const Points = (props: { pointColor: string, removePoint(index: number): any, el
                 )
             })
             }
-            {/* )} */}
         </g>
     )
 }
