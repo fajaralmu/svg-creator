@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { ChangeEvent, Fragment } from 'react'
 import Modal from '../../container/Modal';
 import FormGroup from '../../form/FormGroup';
 import AnchorWithIcon from '../../navigation/AnchorWithIcon';
@@ -16,7 +16,7 @@ class State {
     size: number = 400;
     selectedIndex: number = 0;
     editMode: boolean = true;
-    output?:string;
+    output?: string;
 }
 class SvgCreator extends BaseComponent {
     state: State = new State();
@@ -47,6 +47,12 @@ class SvgCreator extends BaseComponent {
         element.points.push(p);
         this.updateSelectedElement(element);
     }
+    updateSelectedElementStrokeColor = (e:ChangeEvent) => {
+        const target = e.target as HTMLInputElement;
+        const element = this.getSelectedElement();
+        element.strokeColor = target.value;
+        this.updateSelectedElement(element);
+    }
     updateSelectedElement = (element: SvgItem) => {
         const elements = this.state.svgElements;
         elements[this.state.selectedIndex] = element;
@@ -64,7 +70,13 @@ class SvgCreator extends BaseComponent {
     }
     removeSelectedElement = () => {
         const elements = this.state.svgElements;
-        if (elements.length <= 1) return;
+        if (elements.length <= 1) {
+            try {
+                elements[this.state.selectedIndex].points = [];
+                this.setState({ svgElements: elements });
+            } catch (error) { console.error(error) }
+            return;
+        }
         for (let i = 0; i < elements.length; i++) {
             if (i == this.state.selectedIndex) {
                 elements.splice(i, 1);
@@ -88,7 +100,7 @@ class SvgCreator extends BaseComponent {
         this.setState({ editMode: val });
     }
     showOutput = () => {
-        this.setState({output: SvgItem.getOutput(this.state.svgElements, this.state.size)});
+        this.setState({ output: SvgItem.getOutput(this.state.svgElements, this.state.size) });
     }
     render = () => {
         const elements: SvgItem[] = this.state.svgElements;
@@ -97,15 +109,15 @@ class SvgCreator extends BaseComponent {
         const size = this.state.size;
         const selectedIndex = this.state.selectedIndex;
         const editMode = this.state.editMode;
-        return <Modal title="Svg Creator Content">
+        return <Modal title="Draw Your Svg Path">
             <div className="row">
                 <div className="col-md-8 svg-wrapper text-center" style={{
                     backgroundImage: 'url(' + this.props.imageData + ')',
                 }}>
                     <svg className="border border-dark svg-sheet" width={size} height={size}>
-                        <g fill="transparent" stroke={pointColor} className="svg-path">
+                        <g fill="transparent"  className="svg-path">
                             {elements.map((element, i) => {
-                                return <path onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"} strokeWidth={selectedIndex == i ? 3 : 1} key={"path-" + i} d={element.getPath()} />
+                                return <path stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"} strokeWidth={selectedIndex == i ? 3 : 1} key={"path-" + i} d={element.getPath()} />
                             })}
                         </g>
                         {editMode ?
@@ -130,6 +142,11 @@ class SvgCreator extends BaseComponent {
                         <FormGroup label="Close Path">
                             <ToggleButton active={element.closePath}
                                 onClick={this.updateClosePath} />
+                        </FormGroup>
+                        <FormGroup label="Stroke Color">
+                           <input type="color" className="form-control" value={element.strokeColor}
+                           onChange={this.updateSelectedElementStrokeColor}
+                           />
                         </FormGroup>
                         <FormGroup  >
                             <AnchorWithIcon onClick={this.removeSelectedElement} iconClassName="fas fa-times"
@@ -160,7 +177,7 @@ class SvgCreator extends BaseComponent {
                         {this.state.output}
                     </code>
                 </FormGroup>
-                
+
             </form>
         </Modal>
     }

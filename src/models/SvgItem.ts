@@ -4,6 +4,7 @@ export default
 class SvgItem {
     points: SvgPoint[] = [];
     closePath: boolean = false;
+    strokeColor:string =  "#20f08d";
     getPath = () => {
         if (this.points.length < 2) { return "" }
 
