@@ -56,13 +56,14 @@ class SvgCreator extends BaseComponent {
             console.debug("TAG NAME: ", target.tagName);
             return;
         }
+        let point: SvgPoint;
         console.debug("straightLine: ", this.straightLine);
         if (this.straightLine && this.getSelectedElement().points.length > 0) {
             const prevPoint = this.getSelectedElement().points[this.getSelectedElement().points.length - 1];
-            const point: SvgPoint = SvgPoint.newInstanceWithPrevPoint(e, target, prevPoint);
+            point = SvgPoint.newInstanceWithPrevPoint(e, target, prevPoint);
+        } else {
+            point = SvgPoint.newInstance(e, target);
         }
-        const point: SvgPoint = SvgPoint.newInstance(e, target);
-       
         this.addPointToCurrentElement(point);
     }
     getSelectedElement = (): SvgItem => {
@@ -70,7 +71,7 @@ class SvgCreator extends BaseComponent {
         return elements[this.state.selectedIndex];
     }
     addPointToCurrentElement = (p: SvgPoint) => {
-       
+
         const element = this.getSelectedElement();
         element.points.push(p);
         this.updateSelectedElement(element);
@@ -130,7 +131,7 @@ class SvgCreator extends BaseComponent {
     showOutput = () => {
         this.setState({ output: SvgItem.getOutput(this.state.svgElements, this.state.size) });
     }
-    
+
     render = () => {
         const elements: SvgItem[] = this.state.svgElements;
         const element: SvgItem = this.getSelectedElement();
