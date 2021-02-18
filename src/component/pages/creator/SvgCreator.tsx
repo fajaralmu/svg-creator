@@ -1,4 +1,4 @@
-import React, { ChangeEvent, Fragment } from 'react'
+import React, { ChangeEvent, Fragment, KeyboardEventHandler } from 'react'
 import Modal from '../../container/Modal';
 import FormGroup from '../../form/FormGroup';
 import AnchorWithIcon from '../../navigation/AnchorWithIcon';
@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import ToggleButton from '../../navigation/ToggleButton';
 import SvgItem from '../../../models/SvgItem';
 import SvgPoint from './../../../models/SvgPoint';
+import { doItLater } from './../../../utils/EventUtil';
 
 class State {
     svgElements: SvgItem[] = [new SvgItem()];
@@ -20,13 +21,34 @@ class State {
 }
 class SvgCreator extends BaseComponent {
     state: State = new State();
+    svgWorkSheetRef: React.RefObject<SVGRectElement> = React.createRef();
+    straightLine: boolean = false;
     constructor(props) {
         super(props, false);
+        this.initKeyListener();
+    }
+    initKeyListener = () => {
+        window.onkeypress = this.onkeypress;
+        window.onkeyup = this.onkeyup;
     }
     setActiveIndex = (index: number) => {
         if (this.state.editMode) return;
         this.setState({ selectedIndex: index });
     }
+    onkeyup: (((this: Window | GlobalEventHandlers, ev: KeyboardEvent) => any) & ((this: Window, ev: KeyboardEvent) => any)) =
+        event => {
+            this.straightLine = false;
+        }
+    onkeypress: (((this: Window | GlobalEventHandlers, ev: KeyboardEvent) => any) & ((this: Window, ev: KeyboardEvent) => any)) =
+        event => {
+            if (event instanceof KeyboardEvent) {
+                const keyEvent: KeyboardEvent = event as KeyboardEvent;
+                if (keyEvent.key == 'h') {
+                    this.straightLine = true;
+                }
+            }
+        }
+
     addPoint = (e: React.MouseEvent<SVGRectElement>): void => {
         const target = e.target as SVGRectElement;
         if (!target) return;
@@ -34,12 +56,13 @@ class SvgCreator extends BaseComponent {
             console.debug("TAG NAME: ", target.tagName);
             return;
         }
-        if (this.getSelectedElement().points.length > 0) {
-            const prevPoint =this.getSelectedElement().points[this.getSelectedElement().points.length - 1];
+        console.debug("straightLine: ", this.straightLine);
+        if (this.straightLine && this.getSelectedElement().points.length > 0) {
+            const prevPoint = this.getSelectedElement().points[this.getSelectedElement().points.length - 1];
             const point: SvgPoint = SvgPoint.newInstanceWithPrevPoint(e, target, prevPoint);
         }
         const point: SvgPoint = SvgPoint.newInstance(e, target);
-        // console.debug("addPoint x: ", point.x, "y: ", point.y);
+       
         this.addPointToCurrentElement(point);
     }
     getSelectedElement = (): SvgItem => {
@@ -47,6 +70,7 @@ class SvgCreator extends BaseComponent {
         return elements[this.state.selectedIndex];
     }
     addPointToCurrentElement = (p: SvgPoint) => {
+       
         const element = this.getSelectedElement();
         element.points.push(p);
         this.updateSelectedElement(element);
@@ -106,6 +130,7 @@ class SvgCreator extends BaseComponent {
     showOutput = () => {
         this.setState({ output: SvgItem.getOutput(this.state.svgElements, this.state.size) });
     }
+    
     render = () => {
         const elements: SvgItem[] = this.state.svgElements;
         const element: SvgItem = this.getSelectedElement();
@@ -121,13 +146,13 @@ class SvgCreator extends BaseComponent {
                     <svg className=" svg-sheet" width={size} height={size}>
                         <g fill="transparent" className="svg-path">
                             {elements.map((element, i) => {
-                                return <path stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"} 
-                                strokeWidth={selectedIndex == i ? 4 : 2} key={"path-" + i} d={element.getPath()} />
+                                return <path stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"}
+                                    strokeWidth={selectedIndex == i ? 4 : 2} key={"path-" + i} d={element.getPath()} />
                             })}
                         </g>
                         {editMode ?
                             <g>
-                                <rect id="svg-screen" onClick={this.addPoint} fill="transparent" x={0} y={0} width={size} height={size} />
+                                <rect ref={this.svgWorkSheetRef} focusable="true" id="svg-screen" onClick={this.addPoint} fill="transparent" x={0} y={0} width={size} height={size} />
                                 <Points pointColor={pointColor} element={element} removePoint={this.removePoint} />
                             </g> : null}
                     </svg>
@@ -169,9 +194,9 @@ class SvgCreator extends BaseComponent {
                 </FormGroup>
                 <FormGroup label="Selec Element">
                     <select name="selectedIndex" value={this.state.selectedIndex} onChange={this.handleInputChange} className="form-control">
-                        {array(elements.length).map((val,i)=>{
+                        {array(elements.length).map((val, i) => {
                             return (
-                                <option key={"select-index-"+i} value={val}>{val}</option>
+                                <option key={"select-index-" + i} value={val}>{val}</option>
                             )
                         })}
                     </select>
@@ -197,10 +222,10 @@ class SvgCreator extends BaseComponent {
         </Modal>
     }
 }
-const array  =(max:number) => {
-    const arr:Array<number> = [];
+const array = (max: number) => {
+    const arr: Array<number> = [];
     for (let i = 0; i < max; i++) {
-        arr.push(i);  
+        arr.push(i);
     }
     return arr;
 }
