@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import BaseMainMenus from './BaseMainMenus';
 import Menu from '../../models/common/Menu'; 
 import HomeMain from './../pages/home/HomeMain';
+import CreatorMain from './../pages/creator/CreatorMain';
 
 class ApplicationContent extends BaseComponent {
 
@@ -31,6 +32,10 @@ class ApplicationContent extends BaseComponent {
                     <Route exact path="/" render={
                         (props: any) =>
                             <HomeMain />
+                    } />
+                    <Route exact path="/creator" render={
+                        (props: any) =>
+                            <CreatorMain />
                     } />
                      </Switch>
             </Fragment>

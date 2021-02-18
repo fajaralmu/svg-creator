@@ -8,3 +8,12 @@
     /* background-color: red; */
     cursor: pointer;
 }
+.svg-points {
+
+}
+.svg-sheet {
+    border-width: 3px;
+}
+.path-selectable :hover{
+    cursor: pointer;
+}

@@ -3,6 +3,7 @@ import Menu from '../models/common/Menu';
 
 export const HOME = "home"; 
 export const ABOUT = "about"; 
+export const CREATOR = "creator"; 
 
 export const getMenus = () => {
     let menuSet: Menu[] = [];
@@ -41,6 +42,15 @@ export const menus: Menu[] = [
         name: "Home",
         url: "/home",
         menuClass: "fa fa-home",
+        active: false,
+        authenticated: false,
+        showSidebar: false
+    },
+    {
+        code: CREATOR,
+        name: "Creator",
+        url: "/creator",
+        menuClass: "fa fa-play",
         active: false,
         authenticated: false,
         showSidebar: false
