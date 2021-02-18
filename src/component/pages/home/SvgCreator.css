@@ -1,0 +1,10 @@
+.svg-wrapper {
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.svg-point:hover {
+    /* background-color: red; */
+    cursor: pointer;
+}

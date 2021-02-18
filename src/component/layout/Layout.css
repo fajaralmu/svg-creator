@@ -1,0 +1,34 @@
+#app-content {
+  position: absolute;
+}
+#content {
+  padding: 0px;
+}
+.option-item:hover {
+  border-bottom: solid 1px #000;
+}
+.option-item {
+ padding:2px;
+}
+@media screen and (max-width: 991px) {
+  .menu-label
+   {
+    display: none;
+  }
+  #app-content {
+    padding-left: 60px;
+  }
+  .div-auto-scroll {
+    overflow : scroll;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  
+  #app-content {
+    padding-left: 270px;
+    margin-top: 20px; 
+    background-color: #aaaaaa;
+    /* background-color: rgb(9, 26, 78); */
+  }
+}
