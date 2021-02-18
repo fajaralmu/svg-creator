@@ -34,6 +34,10 @@ class SvgCreator extends BaseComponent {
             console.debug("TAG NAME: ", target.tagName);
             return;
         }
+        if (this.getSelectedElement().points.length > 0) {
+            const prevPoint =this.getSelectedElement().points[this.getSelectedElement().points.length - 1];
+            const point: SvgPoint = SvgPoint.newInstanceWithPrevPoint(e, target, prevPoint);
+        }
         const point: SvgPoint = SvgPoint.newInstance(e, target);
         // console.debug("addPoint x: ", point.x, "y: ", point.y);
         this.addPointToCurrentElement(point);
@@ -163,6 +167,15 @@ class SvgCreator extends BaseComponent {
                     <ToggleButton active={this.state.editMode == true} onClick={this.setEditMode} />
                     <p><i>{this.state.editMode == false ? "Select path to edit" : null}</i></p>
                 </FormGroup>
+                <FormGroup label="Selec Element">
+                    <select name="selectedIndex" value={this.state.selectedIndex} onChange={this.handleInputChange} className="form-control">
+                        {array(elements.length).map((val,i)=>{
+                            return (
+                                <option key={"select-index-"+i} value={val}>{val}</option>
+                            )
+                        })}
+                    </select>
+                </FormGroup>
                 <FormGroup label="Size">
                     <input autoComplete="off" type="number" value={size} onChange={this.handleInputChange}
                         name="size" className="form-control" />
@@ -184,7 +197,13 @@ class SvgCreator extends BaseComponent {
         </Modal>
     }
 }
-
+const array  =(max:number) => {
+    const arr:Array<number> = [];
+    for (let i = 0; i < max; i++) {
+        arr.push(i);  
+    }
+    return arr;
+}
 const Points = (props: { pointColor: string, removePoint(index: number): any, element: SvgItem }) => {
     return (
         <g fill={props.pointColor} stroke="rgb(0,0,0)" strokeWidth={1} className="svg-points">
