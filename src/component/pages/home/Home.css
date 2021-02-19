@@ -8,6 +8,11 @@
   stroke-dashoffset: 1000;
   animation: dash 2s linear forwards;
 }
+.welcome-svg-slow {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: dash 45s linear forwards;
+}
 .welcome-svg-rect {
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
