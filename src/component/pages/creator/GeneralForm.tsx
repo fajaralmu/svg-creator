@@ -3,15 +3,12 @@ import SvgItem from '../../../models/elements/SvgItem';
 import { ElementType } from '../../../models/ElementType';
 import FormGroup from './../../form/FormGroup';
 import AnchorWithIcon from './../../navigation/AnchorWithIcon';
-import ToggleButton from './../../navigation/ToggleButton';
 import AnchorWithSvg from './../../navigation/AnchorWithSvg';
 
 interface Props {
     elements: SvgItem[],
     handleInputChange(e: ChangeEvent): any,
-    setEditMode(val: boolean): any,
     addSvgElement(type: ElementType): any,
-    editMode: boolean,
     selectedIndex: number,
     size: number,
     output?: string,
@@ -41,10 +38,7 @@ export default class GeneralForm extends Component<Props, any> {
                             <AnchorWithSvg onClick={(e) => { this.add(ElementType.CURVE) }} icon="curve" />
                         </div>
                     </FormGroup>
-                    <FormGroup label="Edit Mode">
-                        <ToggleButton active={this.props.editMode == true} onClick={this.props.setEditMode} />
-                        <p><i>{this.props.editMode == false ? "Select path to edit" : null}</i></p>
-                    </FormGroup>
+
                     <FormGroup label="Select Element">
                         <select name="selectedIndex" value={this.props.selectedIndex} onChange={this.props.handleInputChange} className="form-control">
                             {array(elements.length).map((val, i) => {

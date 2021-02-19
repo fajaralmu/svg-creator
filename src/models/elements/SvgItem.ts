@@ -14,6 +14,15 @@ export default
     type: ElementType = ElementType.PATH;
     id:string = uniqueId();
 
+    public setClosePath = (val:boolean) :SvgItem => {
+        this.closePath = val;
+        return this;
+    }
+    public setStrokeColor = (strokeColor:string) :SvgItem => {
+        this.strokeColor = strokeColor;
+        return this;
+    }
+
     getPoint = (index:number) : SvgPoint|undefined => {
         try {
             return this.points[index];
