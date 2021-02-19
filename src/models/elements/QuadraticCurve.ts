@@ -13,7 +13,7 @@ export default class QuadraticCurve extends BaseElement {
         return path;
     }
     html = (strokeColor?:string) => {
-        return `<path stroke="` + strokeColor + `"  d="`+this.getPath+`"/>`;
+        return `<path stroke="` + strokeColor + `"  d="`+this.getPath()+`"/>`;
     }
 
     public static newInstance = (startPoint:SvgPoint, endPoint:SvgPoint, slopePoint:SvgPoint) :QuadraticCurve => {

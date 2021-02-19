@@ -3,7 +3,7 @@ import SvgItem from '../../../models/elements/SvgItem';
 import { ElementType } from '../../../models/ElementType';
 import FormGroup from './../../form/FormGroup';
 import AnchorWithIcon from './../../navigation/AnchorWithIcon';
-import ToggleButton from './../../navigation/ToggleButton';
+import ToggleButton from './../../navigation/ToggleButton'; 
 
 interface Props {
     elements: SvgItem[],
@@ -37,7 +37,9 @@ export default class GeneralForm extends Component<Props, any> {
                             <AnchorWithIcon onClick={(e) => { this.add(ElementType.PATH) }} iconClassName="fas fa-draw-polygon" />
                             <AnchorWithIcon onClick={(e) => { this.add(ElementType.CIRCLE) }} iconClassName="far fa-circle" />
                             <AnchorWithIcon onClick={(e) => { this.add(ElementType.RECT) }} iconClassName="far fa-square" />
-                            <AnchorWithIcon onClick={(e) => { this.add(ElementType.CURVE) }} iconClassName="fas fa-circle-notch" />
+                            <a className="btn btn-outline-secondary" onClick={(e) => { this.add(ElementType.CURVE) }}>
+                                <img width="24" src="resources/assets/svg/curve.svg" />
+                            </a>
                         </div>
                     </FormGroup>
                     <FormGroup label="Edit Mode">
