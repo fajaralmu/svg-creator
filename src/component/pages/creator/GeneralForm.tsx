@@ -1,5 +1,6 @@
-import React, { ChangeEvent, Component } from 'react' 
+import React, { ChangeEvent, Component } from 'react'
 import SvgItem from '../../../models/elements/SvgItem';
+import { ElementType } from '../../../models/ElementType';
 import FormGroup from './../../form/FormGroup';
 import AnchorWithIcon from './../../navigation/AnchorWithIcon';
 import ToggleButton from './../../navigation/ToggleButton';
@@ -8,7 +9,7 @@ interface Props {
     elements: SvgItem[],
     handleInputChange(e: ChangeEvent): any,
     setEditMode(val: boolean): any,
-    addSvgElement(): any,
+    addSvgElement(type: ElementType): any,
     editMode: boolean,
     selectedIndex: number,
     size: number,
@@ -18,14 +19,22 @@ interface Props {
 }
 export default class GeneralForm extends Component<Props, any> {
 
-    render(){
+    add = (type:ElementType) => {
+        this.props.addSvgElement(type);
+    }
+    render() {
         const elements = this.props.elements;
         return (
             <form onSubmit={(e) => e.preventDefault()}>
-                <FormGroup label="Element Count">
-                    <AnchorWithIcon className="btn btn-dark btn-sm" iconClassName="fas fa-plus" onClick={this.props.addSvgElement} >
-                        {elements.length}
-                    </AnchorWithIcon>
+                <FormGroup label="Add Items">
+
+                    <div className="btn-group">
+                        <span className="btn btn-dark">  {elements.length}
+                        </span>
+                        <AnchorWithIcon onClick={(e)=>{this.add(ElementType.PATH)}} iconClassName="fas fa-draw-polygon" />
+                        <AnchorWithIcon onClick={(e)=>{this.add(ElementType.CIRCLE)}} iconClassName="far fa-circle" />
+                        <AnchorWithIcon onClick={(e)=>{this.add(ElementType.RECT)}} iconClassName="far fa-square" />
+                    </div>
                 </FormGroup>
                 <FormGroup label="Edit Mode">
                     <ToggleButton active={this.props.editMode == true} onClick={this.props.setEditMode} />
@@ -52,7 +61,7 @@ export default class GeneralForm extends Component<Props, any> {
                 <FormGroup label="Ouput">
                     <code>{this.props.output}</code>
                 </FormGroup>
-    
+
             </form>
         )
     }

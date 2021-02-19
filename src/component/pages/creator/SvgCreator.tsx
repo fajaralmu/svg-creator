@@ -19,8 +19,7 @@ class State {
     size: number = 400;
     selectedIndex: number = 0;
     editMode: boolean = true;
-    output?: string;
-    elementType: ElementType = ElementType.PATH;
+    output?: string; 
 }
 class SvgCreator extends BaseComponent {
     state: State = new State();
@@ -76,9 +75,7 @@ class SvgCreator extends BaseComponent {
     getSelectedElement = (): SvgItem => {
         const elements = this.state.svgElements;
         const el = elements[this.state.selectedIndex];
-        if (this.state.editMode && this.state.elementType !== el.type) {
-            this.setState({ elementType: el.type });
-        }
+       
         return el;
     }
     setElementType = (e: ChangeEvent) => {
@@ -108,9 +105,9 @@ class SvgCreator extends BaseComponent {
         element.closePath = value;
         this.updateSelectedElement(element);
     }
-    addSvgElement = () => {
+    addSvgElement = (type:ElementType) => {
         const elements = this.state.svgElements;
-        elements.push(SvgItem.newInstance(this.state.elementType));
+        elements.push(SvgItem.newInstance(type));
         this.setState({ editMode: true, svgElements: elements, selectedIndex: elements.length - 1 });
     }
     removeSelectedElement = () => {
@@ -203,18 +200,10 @@ class SvgCreator extends BaseComponent {
                     <form className="container-fluid border border-info" onSubmit={(e) => e.preventDefault()}>
                         <h4>Options</h4>
                         <FormGroup label="Type">
-                            <select disabled={this.state.editMode} onChange={this.setElementType} value={this.state.elementType} className="form-control" name="elementType" >
-                                {[ElementType.PATH, ElementType.CIRCLE, ElementType.RECT, ElementType.CIRCLE].map(
-                                    (type, i) => {
-                                        return (<option value={type} key={"el-type-" + i}>{ElementType[type]}</option>)
-                                    }
-                                )}
-                            </select>
-                            <br />
-                            <i>Disable edit mode to enable this</i>
+                            {ElementType[element.type]}
                         </FormGroup>
                         <FormGroup label="Selected Index">
-                            {this.state.selectedIndex} {ElementType[element.type]}
+                            {this.state.selectedIndex}
                         </FormGroup>
                         <FormGroup label="Close Path">
                             <ToggleButton active={element.closePath}
