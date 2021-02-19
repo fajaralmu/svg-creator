@@ -198,7 +198,7 @@ const Footer = (props) => {
     <footer  className="container-fluid text-center bg-light">
       <p />
       <hr />
-      <p>fajaralmu 2021</p>
+      <p><i className="fas fa-coffee" style={{marginRight:5}}/>fajaralmu 2021</p>
       <p/>
     </footer>
   )
