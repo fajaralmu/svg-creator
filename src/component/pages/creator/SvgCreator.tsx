@@ -7,9 +7,11 @@ import './SvgCreator.css'
 import { mapCommonUserStateToProps } from '../../../constant/stores';
 import { connect } from 'react-redux';
 import ToggleButton from '../../navigation/ToggleButton';
-import SvgItem from '../../../models/SvgItem';
-import SvgPoint from './../../../models/SvgPoint';
+import SvgItem from '../../../models/elements/SvgItem';
+import SvgPoint from '../../../models/elements/SvgPoint';
 import { ElementType } from '../../../models/ElementType';
+import { throws } from 'assert';
+import GeneralForm from './GeneralForm';
 
 class State {
     svgElements: SvgItem[] = [new SvgItem()];
@@ -65,11 +67,11 @@ class SvgCreator extends BaseComponent {
             console.debug("TAG NAME: ", target.tagName);
             return;
         }
-       
+
         console.debug("straightLine: ", this.straightLine);
-        const element:SvgItem = this.getSelectedElement();
-        element.addPoint(e, target,this.straightLine);
-       this.updateSelectedElement(element);
+        const element: SvgItem = this.getSelectedElement();
+        element.addPoint(e, target, this.straightLine);
+        this.updateSelectedElement(element);
     }
     getSelectedElement = (): SvgItem => {
         const elements = this.state.svgElements;
@@ -109,7 +111,7 @@ class SvgCreator extends BaseComponent {
     addSvgElement = () => {
         const elements = this.state.svgElements;
         elements.push(SvgItem.newInstance(this.state.elementType));
-        this.setState({ editMode:true, svgElements: elements, selectedIndex: elements.length - 1 });
+        this.setState({ editMode: true, svgElements: elements, selectedIndex: elements.length - 1 });
     }
     removeSelectedElement = () => {
         const elements = this.state.svgElements;
@@ -167,11 +169,19 @@ class SvgCreator extends BaseComponent {
                                         strokeWidth={selectedIndex == i ? 4 : 2} key={"path-" + i} d={element.getPath()} />
                                 }
                                 if (element.type == ElementType.RECT) {
-                                    console.debug("RENDER RECT");
+                                    
                                     const rect = element.getRectElement();
                                     return <rect stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"} strokeWidth={selectedIndex == i ? 4 : 2} key={"path-" + i}
                                         x={rect.x} y={rect.y}
                                         width={rect.width} height={rect.height}
+                                    />
+                                }
+                                if (element.type == ElementType.CIRCLE) {
+                                   
+                                    const circle = element.getCircleElement();
+                                    return <circle stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"} strokeWidth={selectedIndex == i ? 4 : 2} key={"path-" + i}
+                                        cx={circle.x} cy={circle.y}
+                                        r={circle.r}
                                     />
                                 }
                                 return <>{ElementType[element.type]}</>
@@ -224,49 +234,19 @@ class SvgCreator extends BaseComponent {
                 </div>
             </div>
             <p />
-            <form onSubmit={(e) => e.preventDefault()}>
-                <FormGroup label="Element Count">
-                    <AnchorWithIcon className="btn btn-dark btn-sm" iconClassName="fas fa-plus" onClick={this.addSvgElement} >
-                        {this.state.svgElements.length}
-                    </AnchorWithIcon>
-                </FormGroup>
-                <FormGroup label="Edit Mode">
-                    <ToggleButton active={this.state.editMode == true} onClick={this.setEditMode} />
-                    <p><i>{this.state.editMode == false ? "Select path to edit" : null}</i></p>
-                </FormGroup>
-                <FormGroup label="Select Element">
-                    <select name="selectedIndex" value={this.state.selectedIndex} onChange={this.handleInputChange} className="form-control">
-                        {array(elements.length).map((val, i) => {
-                            return <option key={"select-index-" + i} value={val}>{val}</option>
-                        })}
-                    </select>
-                </FormGroup>
-                <FormGroup label="Size">
-                    <input autoComplete="off" type="number" value={size} onChange={this.handleInputChange}
-                        name="size" className="form-control" />
-                </FormGroup>
-                <FormGroup label="Point Color">
-                    <input autoComplete="off" type="color" value={pointColor} onChange={this.handleInputChange}
-                        name="pointColor" className="form-control" />
-                </FormGroup>
-                <FormGroup >
-                    <AnchorWithIcon onClick={this.showOutput} >Show Output</AnchorWithIcon>
-                </FormGroup>
-                <FormGroup label="Ouput">
-                    <code>{this.state.output}</code>
-                </FormGroup>
-
-            </form>
+            <GeneralForm elements={elements}
+                handleInputChange={this.handleInputChange}
+                setEditMode={this.setEditMode} showOutput={this.showOutput}
+                addSvgElement={this.addSvgElement}
+                editMode={this.state.editMode}
+                selectedIndex={this.state.selectedIndex} size={this.state.size}
+                pointColor={this.state.pointColor}
+            />
         </Modal>
     }
 }
-const array = (max: number) => {
-    const arr: Array<number> = [];
-    for (let i = 0; i < max; i++) {
-        arr.push(i);
-    }
-    return arr;
-}
+
+
 const Points = (props: { pointColor: string, removePoint(index: number): any, element: SvgItem }) => {
     return (
         <g fill={props.pointColor} stroke="rgb(0,0,0)" strokeWidth={1} className="svg-points">

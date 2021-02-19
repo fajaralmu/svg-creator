@@ -1,14 +1,14 @@
 
-export default class SvgPoint {
-    x: number = 0; y: number = 0;
-
+import BaseElement from './BaseElement';
+export default class SvgPoint extends BaseElement{
+    
     /**
      * make straight LINE
      * @param e 
      * @param target 
      * @param prevPoint 
      */
-    public static newInstanceWithPrevPoint  = (e: React.MouseEvent<SVGRectElement>, target: SVGRectElement, prevPoint:SvgPoint): SvgPoint => {
+    public static newStraightLineInstance  = (e: React.MouseEvent<SVGRectElement>, target: SVGRectElement, prevPoint:SvgPoint): SvgPoint => {
         var dim = target.getBoundingClientRect();
         const p = new SvgPoint();
 
