@@ -18,8 +18,8 @@ export default
             this.points[1] = SvgPoint.newInstance(e, target);
             return;
         }
-        if ((this.type == ElementType.CURVE) && this.points.length >= 3) {
-            this.points[3] = SvgPoint.newInstance(e, target);
+        if ((this.type == ElementType.CURVE) && this.points.length >= 2) {
+            this.points[2] = SvgPoint.newInstance(e, target);
             return;
         }
 
