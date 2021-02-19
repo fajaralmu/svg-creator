@@ -1,10 +1,13 @@
 
-import React, { ChangeEvent, Component } from 'react';
+import React from 'react';
 import './Home.css'
 import BaseComponent from './../../BaseComponent';
 import AnchorWithIcon from '../../navigation/AnchorWithIcon';
+import { mapCommonUserStateToProps } from './../../../constant/stores';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 
-export default class HomeMain extends BaseComponent {
+class HomeMain extends BaseComponent {
 
     constructor(props) {
         super(props, false);
@@ -38,3 +41,7 @@ const Welcome = (props) => {
         </svg>
     )
 }
+
+export default withRouter(connect(
+    mapCommonUserStateToProps
+)(HomeMain))

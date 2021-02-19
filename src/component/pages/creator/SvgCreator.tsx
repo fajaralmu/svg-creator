@@ -12,6 +12,7 @@ import SvgPoint from '../../../models/elements/SvgPoint';
 import { ElementType } from '../../../models/ElementType';
 import { throws } from 'assert';
 import GeneralForm from './GeneralForm';
+import { withRouter } from 'react-router-dom';
 
 class State {
     svgElements: SvgItem[] = [new SvgItem()];
@@ -253,6 +254,6 @@ const Points = (props: { pointColor: string, removePoint(index: number): any, el
     )
 }
 
-export default connect(
+export default withRouter(connect(
     mapCommonUserStateToProps
-)(SvgCreator)
+)(SvgCreator))
