@@ -49,6 +49,8 @@ class SvgCreator extends BaseComponent {
                 const keyEvent: KeyboardEvent = event as KeyboardEvent;
                 if (keyEvent.key == 'h') {
                     this.straightLine = true;
+                } else if (keyEvent.key =='z') {
+                    this.updateClosePath(!this.getSelectedElement().closePath);
                 }
             }
         }
@@ -209,6 +211,8 @@ class SvgCreator extends BaseComponent {
                         <FormGroup label="Close Path">
                             <ToggleButton active={element.closePath}
                                 onClick={this.updateClosePath} />
+                            <br/>
+                            <p>Press <span className="badge badge-dark">Z</span> to toggle Close Path</p>
                         </FormGroup>
                         <FormGroup label="Stroke Color">
                             <input type="color" className="form-control" value={element.strokeColor}
