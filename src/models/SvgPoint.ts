@@ -2,6 +2,12 @@
 export default class SvgPoint {
     x: number = 0; y: number = 0;
 
+    /**
+     * make straight LINE
+     * @param e 
+     * @param target 
+     * @param prevPoint 
+     */
     public static newInstanceWithPrevPoint  = (e: React.MouseEvent<SVGRectElement>, target: SVGRectElement, prevPoint:SvgPoint): SvgPoint => {
         var dim = target.getBoundingClientRect();
         const p = new SvgPoint();

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, Fragment, KeyboardEventHandler } from 'react'
+import React, { ChangeEvent } from 'react'
 import Modal from '../../container/Modal';
 import FormGroup from '../../form/FormGroup';
 import AnchorWithIcon from '../../navigation/AnchorWithIcon';
@@ -9,20 +9,22 @@ import { connect } from 'react-redux';
 import ToggleButton from '../../navigation/ToggleButton';
 import SvgItem from '../../../models/SvgItem';
 import SvgPoint from './../../../models/SvgPoint';
-import { doItLater } from './../../../utils/EventUtil';
+import { ElementType } from '../../../models/ElementType';
 
 class State {
     svgElements: SvgItem[] = [new SvgItem()];
-    pointColor: string = "#20f08d";
+    pointColor: string = "#cccccc";
     size: number = 400;
     selectedIndex: number = 0;
     editMode: boolean = true;
     output?: string;
+    elementType: ElementType = ElementType.PATH;
 }
 class SvgCreator extends BaseComponent {
     state: State = new State();
     svgWorkSheetRef: React.RefObject<SVGRectElement> = React.createRef();
     straightLine: boolean = false;
+    isMouseDown: boolean = false;
     constructor(props) {
         super(props, false);
         this.initKeyListener();
@@ -49,6 +51,13 @@ class SvgCreator extends BaseComponent {
             }
         }
 
+    onMouseDown = (e: React.MouseEvent<SVGRectElement>): void => { this.isMouseDown = true }
+    onMouseUp = (e: React.MouseEvent<SVGRectElement>): void => { this.isMouseDown = false }
+    onMouseMove = (e: React.MouseEvent<SVGRectElement>): void => {
+        if (!this.isMouseDown) {
+            return;
+        }
+    }
     addPoint = (e: React.MouseEvent<SVGRectElement>): void => {
         const target = e.target as SVGRectElement;
         if (!target) return;
@@ -56,19 +65,24 @@ class SvgCreator extends BaseComponent {
             console.debug("TAG NAME: ", target.tagName);
             return;
         }
-        let point: SvgPoint;
+       
         console.debug("straightLine: ", this.straightLine);
-        if (this.straightLine && this.getSelectedElement().points.length > 0) {
-            const prevPoint = this.getSelectedElement().points[this.getSelectedElement().points.length - 1];
-            point = SvgPoint.newInstanceWithPrevPoint(e, target, prevPoint);
-        } else {
-            point = SvgPoint.newInstance(e, target);
-        }
-        this.addPointToCurrentElement(point);
+        const element:SvgItem = this.getSelectedElement();
+        element.addPoint(e, target,this.straightLine);
+       this.updateSelectedElement(element);
     }
     getSelectedElement = (): SvgItem => {
         const elements = this.state.svgElements;
-        return elements[this.state.selectedIndex];
+        const el = elements[this.state.selectedIndex];
+        if (this.state.editMode && this.state.elementType !== el.type) {
+            this.setState({ elementType: el.type });
+        }
+        return el;
+    }
+    setElementType = (e: ChangeEvent) => {
+        if (this.state.editMode) { return; }
+        const target = e.target as HTMLSelectElement;
+        this.setState({ elementType: target.value });
     }
     addPointToCurrentElement = (p: SvgPoint) => {
 
@@ -94,8 +108,8 @@ class SvgCreator extends BaseComponent {
     }
     addSvgElement = () => {
         const elements = this.state.svgElements;
-        elements.push(new SvgItem);
-        this.setState({ svgElements: elements, selectedIndex: elements.length - 1 });
+        elements.push(SvgItem.newInstance(this.state.elementType));
+        this.setState({ editMode:true, svgElements: elements, selectedIndex: elements.length - 1 });
     }
     removeSelectedElement = () => {
         const elements = this.state.svgElements;
@@ -147,13 +161,29 @@ class SvgCreator extends BaseComponent {
                     <svg className=" svg-sheet" width={size} height={size}>
                         <g fill="transparent" className="svg-path">
                             {elements.map((element, i) => {
-                                return <path stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"}
-                                    strokeWidth={selectedIndex == i ? 4 : 2} key={"path-" + i} d={element.getPath()} />
+                                // console.debug("element.type === ElementType.RECT: ",element.type, ElementType.RECT, (element.type == ElementType.RECT));
+                                if (element.type == ElementType.PATH) {
+                                    return <path stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"}
+                                        strokeWidth={selectedIndex == i ? 4 : 2} key={"path-" + i} d={element.getPath()} />
+                                }
+                                if (element.type == ElementType.RECT) {
+                                    console.debug("RENDER RECT");
+                                    const rect = element.getRectElement();
+                                    return <rect stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"} strokeWidth={selectedIndex == i ? 4 : 2} key={"path-" + i}
+                                        x={rect.x} y={rect.y}
+                                        width={rect.width} height={rect.height}
+                                    />
+                                }
+                                return <>{ElementType[element.type]}</>
                             })}
                         </g>
                         {editMode ?
                             <g>
-                                <rect ref={this.svgWorkSheetRef} focusable="true" id="svg-screen" onClick={this.addPoint} fill="transparent" x={0} y={0} width={size} height={size} />
+                                <rect ref={this.svgWorkSheetRef}
+                                    focusable="true" id="svg-screen"
+                                    onClick={this.addPoint} onMouseDown={this.onMouseDown} onMouseUp={this.onMouseUp}
+                                    onMouseMove={this.onMouseMove}
+                                    fill="transparent" x={0} y={0} width={size} height={size} />
                                 <Points pointColor={pointColor} element={element} removePoint={this.removePoint} />
                             </g> : null}
                     </svg>
@@ -162,9 +192,19 @@ class SvgCreator extends BaseComponent {
                 <div className="col-md-4">
                     <form className="container-fluid border border-info" onSubmit={(e) => e.preventDefault()}>
                         <h4>Options</h4>
-
+                        <FormGroup label="Type">
+                            <select disabled={this.state.editMode} onChange={this.setElementType} value={this.state.elementType} className="form-control" name="elementType" >
+                                {[ElementType.PATH, ElementType.CIRCLE, ElementType.RECT, ElementType.CIRCLE].map(
+                                    (type, i) => {
+                                        return (<option value={type} key={"el-type-" + i}>{ElementType[type]}</option>)
+                                    }
+                                )}
+                            </select>
+                            <br />
+                            <i>Disable edit mode to enable this</i>
+                        </FormGroup>
                         <FormGroup label="Selected Index">
-                            {this.state.selectedIndex}
+                            {this.state.selectedIndex} {ElementType[element.type]}
                         </FormGroup>
                         <FormGroup label="Close Path">
                             <ToggleButton active={element.closePath}
@@ -176,6 +216,7 @@ class SvgCreator extends BaseComponent {
                             />
                         </FormGroup>
                         <FormGroup  >
+                            <p>HOLD <span className="badge badge-dark">H</span> to make straightline</p>
                             <AnchorWithIcon onClick={this.removeSelectedElement} iconClassName="fas fa-times"
                                 className="btn btn-danger btn-sm">Delete Path</AnchorWithIcon>
                         </FormGroup>
@@ -193,12 +234,10 @@ class SvgCreator extends BaseComponent {
                     <ToggleButton active={this.state.editMode == true} onClick={this.setEditMode} />
                     <p><i>{this.state.editMode == false ? "Select path to edit" : null}</i></p>
                 </FormGroup>
-                <FormGroup label="Selec Element">
+                <FormGroup label="Select Element">
                     <select name="selectedIndex" value={this.state.selectedIndex} onChange={this.handleInputChange} className="form-control">
                         {array(elements.length).map((val, i) => {
-                            return (
-                                <option key={"select-index-" + i} value={val}>{val}</option>
-                            )
+                            return <option key={"select-index-" + i} value={val}>{val}</option>
                         })}
                     </select>
                 </FormGroup>
@@ -214,9 +253,7 @@ class SvgCreator extends BaseComponent {
                     <AnchorWithIcon onClick={this.showOutput} >Show Output</AnchorWithIcon>
                 </FormGroup>
                 <FormGroup label="Ouput">
-                    <code>
-                        {this.state.output}
-                    </code>
+                    <code>{this.state.output}</code>
                 </FormGroup>
 
             </form>
