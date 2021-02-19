@@ -8,11 +8,11 @@ import { mapCommonUserStateToProps } from '../../../constant/stores';
 import { connect } from 'react-redux';
 import ToggleButton from '../../navigation/ToggleButton';
 import SvgItem from '../../../models/elements/SvgItem';
-import SvgPoint from '../../../models/elements/SvgPoint';
-import { ElementType } from '../../../models/ElementType';
+import SvgPoint from '../../../models/elements/SvgPoint'; 
 import GeneralForm from './GeneralForm';
 import { withRouter } from 'react-router-dom';
 import { WorksheetRect, Points } from './creatorHelper';
+import { ElementType } from '../../../constant/ElementType';
 
 class State {
     svgElements: SvgItem[] = [new SvgItem()];
@@ -79,9 +79,12 @@ class SvgCreator extends BaseComponent {
         element.points.push(p);
         this.updateSelectedElement(element);
     }
-    updateSelectedElementStrokeColor = (e: ChangeEvent) => {
+    updateSelectedElementProp = (e: ChangeEvent) => {
         const target = e.target as HTMLInputElement;
-        const element = this.getSelectedElement().setStrokeColor(target.value);
+        const name = target.name;
+        const val = target.type == 'number' ? parseInt(target.value) : target.value;
+        const element = this.getSelectedElement();
+        element[name]  = val;
         this.updateSelectedElement(element);
     }
     updateSelectedElement = (element: SvgItem) => {
@@ -166,17 +169,19 @@ class SvgCreator extends BaseComponent {
                     <svg className=" svg-sheet" width={size} height={size}>
                         <g fill="none" className="svg-path">
                             {elements.map((element, i) => {
-                                const strokeWidth = selectedIndex == i ? 4 : 2;
+                                let active:boolean = selectedIndex == i ;
+                                const strokeWidth =  element.strokeWidth;
+                                const strokeColor = active? '#000': element.strokeColor;
                                 const className = this.state.editMode == false ? "path-selectable" : "path-regular";
                                 // console.debug("element.type === ElementType.RECT: ",element.type, ElementType.RECT, (element.type == ElementType.RECT));
                                 if (element.type == ElementType.PATH) {
-                                    return <path stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={className}
+                                    return <path stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)} className={className}
                                         strokeWidth={strokeWidth} key={"path-" + i} d={element.getPath()} />
                                 }
                                 if (element.type == ElementType.RECT) {
 
                                     const rect = element.getRectElement();
-                                    return <rect stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)}
+                                    return <rect stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)}
                                         className={className}
                                         strokeWidth={strokeWidth} key={"rect-" + i}
                                         x={rect.x} y={rect.y} width={rect.width} height={rect.height}
@@ -184,7 +189,7 @@ class SvgCreator extends BaseComponent {
                                 }
                                 if (element.type == ElementType.CIRCLE) {
                                     const circle = element.getCircleElement();
-                                    return <circle fill="none" stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)}
+                                    return <circle fill="none" stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)}
                                         className={className}
                                         strokeWidth={strokeWidth} key={"circle-" + i}
                                         cx={circle.x} cy={circle.y} r={circle.r}
@@ -192,8 +197,13 @@ class SvgCreator extends BaseComponent {
                                 }
                                 if (element.type == ElementType.CURVE) {
                                     const curve = element.getQuadCurveElement();
-                                    return <path stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={className}
+                                    return <path stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)} className={className}
                                         strokeWidth={strokeWidth} key={"curve-" + i} d={curve.getPath()} />
+                                }
+                                if (element.type == ElementType.ELLIPSE) {
+                                    const ellipse = element.getEllipseElement();
+                                    return <ellipse stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)} className={className}
+                                        strokeWidth={strokeWidth} key={"curve-" + i} cx={ellipse.x} cy={ellipse.y} rx={ellipse.rx} ry={ellipse.ry} />
                                 }
                                 return <g>{ElementType[element.type]}</g>
                             })}
@@ -223,8 +233,12 @@ class SvgCreator extends BaseComponent {
                             <p>Press <span className={element.closePath?"badge badge-success":"badge badge-dark"}>Z</span> to toggle Close Path</p>
                         </FormGroup>
                         <FormGroup label="Stroke Color">
-                            <input type="color" className="form-control" value={element.strokeColor}
-                                onChange={this.updateSelectedElementStrokeColor} />
+                            <input type="color" className="form-control" name="strokeColor" value={element.strokeColor}
+                                onChange={this.updateSelectedElementProp} />
+                        </FormGroup>
+                        <FormGroup label="Stroke Width">
+                            <input type="number" className="form-control" name="strokeWidth" value={element.strokeWidth}
+                                onChange={this.updateSelectedElementProp} />
                         </FormGroup>
                         <FormGroup label="Edit Mode">
                             <ToggleButton active={this.state.editMode == true} onClick={this.setEditMode} />

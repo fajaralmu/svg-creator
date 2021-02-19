@@ -1,16 +1,20 @@
 
 
-import { ElementType } from '../ElementType';
+ 
 import SvgPoint from './SvgPoint';
 import Rect from './Rect';
 import Circle from './Circle';
 import QuadraticCurve from './QuadraticCurve';
 import { uniqueId } from './../../utils/StringUtil';
+import { ElementType } from '../../constant/ElementType';
+import Ellipse from './Ellipse';
+import BaseElement from './BaseElement';
 export default
     class SvgItem {
     points: SvgPoint[] = [];
     closePath: boolean = false;
     strokeColor: string = "#20f08d";
+    strokeWidth: number = 2;
     type: ElementType = ElementType.PATH;
     id:string = uniqueId();
 
@@ -36,10 +40,11 @@ export default
             this.points[1] = p;
             return;
         }
-        if ((this.type == ElementType.CURVE) && this.points.length >= 2) {
+        if ((this.type == ElementType.CURVE  || this.type == ElementType.ELLIPSE)  && this.points.length >= 2) {
             this.points[2] = p;
             return;
         }
+        
         this.points.push(p);
     }
     addPointByEvent = (e: React.MouseEvent<SVGRectElement>, target: SVGRectElement, straightLine: boolean) => {
@@ -48,10 +53,11 @@ export default
             this.points[1] = SvgPoint.newInstance(e, target);
             return;
         }
-        if ((this.type == ElementType.CURVE) && this.points.length >= 2) {
+        if ((this.type == ElementType.CURVE  || this.type == ElementType.ELLIPSE) && this.points.length >= 2) {
             this.points[2] = SvgPoint.newInstance(e, target);
             return;
         }
+        
 
         if (straightLine && this.points.length > 0) {
             const prevPoint = this.points[this.points.length - 1];
@@ -69,7 +75,7 @@ export default
         this.adjustPoints1And2();
         let point1 = this.points[0];
         let point2 = this.points[1];
-        return Circle.newInstance(point1, point2);
+        return Circle.newInstance(this, point1, point2);
     }
 
     getQuadCurveElement = (): QuadraticCurve => {
@@ -79,7 +85,17 @@ export default
         let point1 = this.points[0];
         let point2 = this.points[1];
         let point3 = this.points[2]; 
-        return QuadraticCurve.newInstance(point1, point2, point3);
+        return QuadraticCurve.newInstance(this, point1, point2, point3);
+
+    }
+    getEllipseElement = (): Ellipse => {
+        if (this.type != ElementType.ELLIPSE || this.points.length < 3) {
+            return new Ellipse();
+        }
+        let point1 = this.points[0];
+        let point2 = this.points[1];
+        let point3 = this.points[2]; 
+        return Ellipse.newInstance(this, point1, point2, point3);
 
     }
 
@@ -90,7 +106,7 @@ export default
         this.adjustPoints1And2();
         let point1 = this.points[0];
         let point2 = this.points[1];
-        return Rect.newInstance(point1, point2);
+        return Rect.newInstance(this, point1, point2);
     }
     adjustPoints1And2 = () => {
         let point1 = this.points[0];
@@ -119,21 +135,30 @@ export default
         }
         return path + (this.closePath ? "Z" : "");
     }
-    html = () => {
+    getElement = () : BaseElement | undefined => {
         if (this.type == ElementType.RECT) {
-            const r = this.getRectElement();
-            return r.html(this.strokeColor);
+           return this.getRectElement(); 
         }
         if (this.type == ElementType.CIRCLE) {
-            const c = this.getCircleElement();
-            return c.html(this.strokeColor);
+            return   this.getCircleElement(); 
 
-        } if (this.type == ElementType.CURVE) {
-            const c = this.getQuadCurveElement();
-            return c.html(this.strokeColor);
+        } 
+        if (this.type == ElementType.CURVE) {
+            return this.getQuadCurveElement(); 
 
         }
-        return `<path stroke="` + this.strokeColor + `" d="` + this.getPath() + `" />`;
+        if (this.type == ElementType.ELLIPSE) {
+            return this.getEllipseElement(); 
+        }
+        return undefined;
+    }
+    html = () => {
+        const el = this.getElement();
+        if (el){
+            return el.html();
+        }
+        
+        return `<path stroke-width="`+this.strokeWidth+`" stroke="` + this.strokeColor + `" d="` + this.getPath() + `" />`;
     }
     public static newInstance = (type: ElementType) => {
         const res = new SvgItem();

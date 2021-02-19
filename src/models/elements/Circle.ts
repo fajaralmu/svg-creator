@@ -1,5 +1,6 @@
 
 import BaseElement from './BaseElement';
+import SvgItem from './SvgItem';
 import SvgPoint from './SvgPoint';
 export default class Circle extends BaseElement {
     r: number = 0;
@@ -12,13 +13,14 @@ export default class Circle extends BaseElement {
         this.r = radius;
     }
 
-    html = (strokeColor?:string) => {
+    html = () => {
         const c = this;
-        return `<circle stroke="` +  (strokeColor??"black") + `"  cx="` + c.x + `" cy="` + c.y + `" r="` + c.r + `"  />`;
+        return `<circle stroke-width="`+this.strokeWidth+`" stroke="` + this.strokeColor + `"  cx="` + c.x + `" cy="` + c.y + `" r="` + c.r + `"  />`;
     }
 
-    public static newInstance = (middlePoint:SvgPoint, radiusPoint:SvgPoint) => {
+    public static newInstance = (ref:SvgItem, middlePoint:SvgPoint, radiusPoint:SvgPoint) => {
         const c = new Circle();
+        c.init(ref);
         c.x = middlePoint.x;
         c.y = middlePoint.y;
 

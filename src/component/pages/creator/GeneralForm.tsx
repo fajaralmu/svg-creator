@@ -1,6 +1,6 @@
 import React, { ChangeEvent, Component, Fragment } from 'react'
-import SvgItem from '../../../models/elements/SvgItem';
-import { ElementType } from '../../../models/ElementType';
+import { ElementType } from '../../../constant/ElementType';
+import SvgItem from '../../../models/elements/SvgItem'; 
 import FormGroup from './../../form/FormGroup';
 import AnchorWithIcon from './../../navigation/AnchorWithIcon';
 import AnchorWithSvg from './../../navigation/AnchorWithSvg';
@@ -36,6 +36,7 @@ export default class GeneralForm extends Component<Props, any> {
                             <AnchorWithIcon onClick={(e) => { this.add(ElementType.CIRCLE) }} iconClassName="far fa-circle" />
                             <AnchorWithIcon onClick={(e) => { this.add(ElementType.RECT) }} iconClassName="far fa-square" />
                             <AnchorWithSvg onClick={(e) => { this.add(ElementType.CURVE) }} icon="curve" />
+                            <AnchorWithSvg onClick={(e) => { this.add(ElementType.ELLIPSE) }} icon="ellips" />
                         </div>
                     </FormGroup>
 

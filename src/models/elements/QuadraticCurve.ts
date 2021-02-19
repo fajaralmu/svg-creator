@@ -1,5 +1,6 @@
 
 import BaseElement from './BaseElement';
+import SvgItem from './SvgItem';
 import SvgPoint from './SvgPoint';
 export default class QuadraticCurve extends BaseElement { 
     endX:number = 0;
@@ -12,12 +13,13 @@ export default class QuadraticCurve extends BaseElement {
 
         return path;
     }
-    html = (strokeColor?:string) => {
-        return `<path stroke="` + strokeColor + `"  d="`+this.getPath()+`"/>`;
+    html = () => {
+        return `<path stroke-width="`+this.strokeWidth+`" stroke="` + this.strokeColor + `"  d="`+this.getPath()+`"/>`;
     }
 
-    public static newInstance = (startPoint:SvgPoint, endPoint:SvgPoint, slopePoint:SvgPoint) :QuadraticCurve => {
+    public static newInstance = (ref:SvgItem, startPoint:SvgPoint, endPoint:SvgPoint, slopePoint:SvgPoint) :QuadraticCurve => {
         const c = new QuadraticCurve();
+        c.init(ref);
         c.x = startPoint.x;
         c.y = startPoint.y;
         c.slopeX = slopePoint.x;
