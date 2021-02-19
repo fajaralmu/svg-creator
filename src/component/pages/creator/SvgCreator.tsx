@@ -10,7 +10,6 @@ import ToggleButton from '../../navigation/ToggleButton';
 import SvgItem from '../../../models/elements/SvgItem';
 import SvgPoint from '../../../models/elements/SvgPoint';
 import { ElementType } from '../../../models/ElementType';
-import { throws } from 'assert';
 import GeneralForm from './GeneralForm';
 import { withRouter } from 'react-router-dom';
 
@@ -72,13 +71,12 @@ class SvgCreator extends BaseComponent {
 
         console.debug("straightLine: ", this.straightLine);
         const element: SvgItem = this.getSelectedElement();
-        element.addPoint(e, target, this.straightLine);
+        element.addPointByEvent(e, target, this.straightLine);
         this.updateSelectedElement(element);
     }
     getSelectedElement = (): SvgItem => {
         const elements = this.state.svgElements;
         const el = elements[this.state.selectedIndex];
-
         return el;
     }
     setElementType = (e: ChangeEvent) => {
@@ -129,6 +127,30 @@ class SvgCreator extends BaseComponent {
             }
         }
         this.setState({ svgElements: elements, selectedIndex: elements.length - 1 });
+    }
+    onPointClick = (id:string, index:number) => {
+        if (id == this.getSelectedElement().id) {
+            this.removePoint(index);
+            return;
+        }
+        this.addPointFromReferencePoint(id, index);
+
+    }
+    addPointFromReferencePoint = (id:string, index:number) => {
+        const elements = this.state.svgElements;
+        const otherElements:SvgItem[] = elements.filter((e=>e.id == id));
+        if (otherElements.length == 0) return;
+        const otherElement  = otherElements[0];
+        const refPoint = otherElement.getPoint(index);
+        if (!refPoint) {
+            return;
+        }
+        const p = new SvgPoint();
+        p.x = refPoint.x;
+        p.y = refPoint.y;
+        const element = this.getSelectedElement();
+        element.addPoint(p);
+        this.updateSelectedElement(element);
     }
     removePoint = (index: number) => {
         console.debug("removePoint : ", index);
@@ -196,6 +218,7 @@ class SvgCreator extends BaseComponent {
                                 return <>{ElementType[element.type]}</>
                             })}
                         </g>
+                         
                         {editMode ?
                             <g>
                                 <rect ref={this.svgWorkSheetRef}
@@ -203,8 +226,14 @@ class SvgCreator extends BaseComponent {
                                     onClick={this.addPoint} onMouseDown={this.onMouseDown} onMouseUp={this.onMouseUp}
                                     onMouseMove={this.onMouseMove}
                                     fill="transparent" x={0} y={0} width={size} height={size} />
-                                <Points pointColor={pointColor} element={element} removePoint={this.removePoint} />
-                            </g> : null}
+
+                                {elements.map((el, i) => {
+                                    return (
+                                        <Points key={"pts-" + i} active ={i == this.state.selectedIndex} pointColor={pointColor} element={el} onClick={this.onPointClick} />
+                                    )
+                                })}
+                            </g> : null
+                        }
                     </svg>
 
                 </div>
@@ -251,14 +280,15 @@ class SvgCreator extends BaseComponent {
 }
 
 
-const Points = (props: { pointColor: string, removePoint(index: number): any, element: SvgItem }) => {
+const Points = (props: {active:boolean, pointColor: string, onClick(id:string, index: number): any, element: SvgItem }) => {
+    const strokeColor = props.active ? 'rgb(0,0,0)': '#fff';
     return (
-        <g fill={props.pointColor} stroke="rgb(0,0,0)" strokeWidth={1} className="svg-points">
+        <g fill={props.pointColor} stroke={strokeColor} strokeWidth={1} className="svg-points">
             {        props.element.points.map((p, i) => {
                 return (
                     <circle strokeWidth={i == 0 ? 3 : 1} className="svg-point" onClick={(e) => {
                         e.preventDefault();
-                        props.removePoint(i);
+                        props.onClick(props.element.id, i);
                     }} key={"point-" + "_" + i} cx={p.x} cy={p.y} r={3} />
                 )
             })

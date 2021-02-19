@@ -5,14 +5,35 @@ import SvgPoint from './SvgPoint';
 import Rect from './Rect';
 import Circle from './Circle';
 import QuadraticCurve from './QuadraticCurve';
+import { uniqueId } from './../../utils/StringUtil';
 export default
     class SvgItem {
     points: SvgPoint[] = [];
     closePath: boolean = false;
     strokeColor: string = "#20f08d";
     type: ElementType = ElementType.PATH;
+    id:string = uniqueId();
 
-    addPoint = (e: React.MouseEvent<SVGRectElement>, target: SVGRectElement, straightLine: boolean) => {
+    getPoint = (index:number) : SvgPoint|undefined => {
+        try {
+            return this.points[index];
+        } catch (e) {
+            return undefined;
+        }
+    }
+
+    addPoint = (p:SvgPoint) => {
+        if ((this.type == ElementType.RECT || this.type == ElementType.CIRCLE) && this.points.length >= 1) {
+            this.points[1] = p;
+            return;
+        }
+        if ((this.type == ElementType.CURVE) && this.points.length >= 2) {
+            this.points[2] = p;
+            return;
+        }
+        this.points.push(p);
+    }
+    addPointByEvent = (e: React.MouseEvent<SVGRectElement>, target: SVGRectElement, straightLine: boolean) => {
         let point: SvgPoint;
         if ((this.type == ElementType.RECT || this.type == ElementType.CIRCLE) && this.points.length >= 1) {
             this.points[1] = SvgPoint.newInstance(e, target);
@@ -112,7 +133,7 @@ export default
     }
 
     public static getOutput = (items: SvgItem[], size: number): string => {
-        let svg = `<svg xmlns="http://www.w3.org/2000/svg' width="` + size + `" height="` + size + `"><g stroke="black" fill="transparent" stroke-width="2">
+        let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="` + size + `" height="` + size + `"><g stroke="black" fill="transparent" stroke-width="2">
         {SVG}</g></svg>`;
         let paths = "";
         for (let i = 0; i < items.length; i++) {
