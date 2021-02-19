@@ -1,9 +1,14 @@
 .welcome-svg {
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
-  animation: dash 5s linear forwards;
+  animation: dash 7s linear forwards;
 }
-.welcome-rect-svg {
+.welcome-svg-v {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: dash 2s linear forwards;
+}
+.welcome-svg-rect {
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
   animation: dash 1s linear forwards;

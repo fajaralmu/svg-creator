@@ -228,10 +228,12 @@ class SvgCreator extends BaseComponent {
                                     fill="transparent" x={0} y={0} width={size} height={size} />
 
                                 {elements.map((el, i) => {
+                                    if (i == this.state.selectedIndex) return null
                                     return (
-                                        <Points key={"pts-" + i} active ={i == this.state.selectedIndex} pointColor={pointColor} element={el} onClick={this.onPointClick} />
+                                        <Points key={"pts-" + i} active ={false} pointColor={pointColor} element={el} onClick={this.onPointClick} />
                                     )
                                 })}
+                                <Points  active pointColor={pointColor} element={element} onClick={this.onPointClick} />
                             </g> : null
                         }
                     </svg>

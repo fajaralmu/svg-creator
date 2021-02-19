@@ -9,7 +9,7 @@ export default class Rect extends BaseElement {
 
     html = (strokeColor?:string)=> {
         const r=  this;
-        return `<rect stroke="` + strokeColor + `"  x="` + r.x + `" y="` + r.y + `" height="` + r.width + `" width="` + r.height + `"  />`;
+        return `<rect stroke="` + strokeColor + `"  x="` + r.x + `" y="` + r.y + `" width="` + r.width + `" height="` + r.height + `"  />`;
 
     }
 
