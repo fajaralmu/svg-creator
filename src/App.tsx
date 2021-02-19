@@ -164,14 +164,14 @@ class App extends Component<any, IState> {
 
   componentDidMount() {
 
-    
+
     this.setState({ loadingPercentage: 0 });
   }
 
   render() {
 
-  
-   
+
+
     return (
       <Fragment>
         <Loading realtime={this.state.realtime} loading={this.state.loading} loadingPercentage={this.state.loadingPercentage} />
@@ -187,11 +187,22 @@ class App extends Component<any, IState> {
         {/* <SockJsClient url={usedHost + 'realtime-app'} topics={['/wsResp/progress/' + this.props.requestId]}
           onMessage={(msg: WebResponse) => { this.handleMessage(msg) }}
           ref={(client) => { this.clientRef = client }} /> */}
+        <Footer />
       </Fragment>
     )
   }
 }
 
+const Footer = (props) => {
+  return (
+    <footer  className="container-fluid text-center bg-light">
+      <p />
+      <hr />
+      <p>fajaralmu 2021</p>
+      <p/>
+    </footer>
+  )
+}
 function Loading(props) {
   if (props.loading == true) {
     return (
