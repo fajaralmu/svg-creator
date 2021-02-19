@@ -113,7 +113,9 @@ export default
             const element = items[i];
             paths += element.html();
         }
-        return svg.replace("{SVG}", paths);
+        const output = svg.replace("{SVG}", paths);
+         
+        return output;
     }
 }
 

@@ -197,8 +197,8 @@ class SvgCreator extends BaseComponent {
 
                 </div>
                 <div className="col-md-4">
-                    <form className="container-fluid border border-info" onSubmit={(e) => e.preventDefault()}>
-                        <h4>Options</h4>
+                    <form className="container-fluid  " onSubmit={(e) => e.preventDefault()}>
+                        <h4><i className="fas fa-palette"/>&nbsp;Options</h4>
                         <FormGroup label="Type">
                             {ElementType[element.type]}
                         </FormGroup>
@@ -230,6 +230,7 @@ class SvgCreator extends BaseComponent {
                 editMode={this.state.editMode}
                 selectedIndex={this.state.selectedIndex} size={this.state.size}
                 pointColor={this.state.pointColor}
+                output={this.state.output}
             />
         </Modal>
     }
