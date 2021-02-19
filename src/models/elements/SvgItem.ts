@@ -4,6 +4,7 @@ import { ElementType } from '../ElementType';
 import SvgPoint from './SvgPoint';
 import Rect from './Rect';
 import Circle from './Circle';
+import QuadraticCurve from './QuadraticCurve';
 export default
     class SvgItem {
     points: SvgPoint[] = [];
@@ -15,6 +16,10 @@ export default
         let point: SvgPoint;
         if ((this.type == ElementType.RECT || this.type == ElementType.CIRCLE) && this.points.length >= 1) {
             this.points[1] = SvgPoint.newInstance(e, target);
+            return;
+        }
+        if ((this.type == ElementType.CURVE) && this.points.length >= 3) {
+            this.points[3] = SvgPoint.newInstance(e, target);
             return;
         }
 
@@ -31,35 +36,33 @@ export default
         if (this.type != ElementType.CIRCLE || this.points.length < 2) {
             return new Circle();
         }
-        this.adjustXY();
+        this.adjustPoints1And2();
         let point1 = this.points[0];
         let point2 = this.points[1];
+        return Circle.newInstance(point1, point2);
+    }
 
-        const c = new Circle();
-        c.x = point1.x;
-        c.y = point1.y;
+    getQuadCurveElement = (): QuadraticCurve => {
+        if (this.type != ElementType.CURVE || this.points.length < 3) {
+            return new QuadraticCurve();
+        }
+        let point1 = this.points[0];
+        let point2 = this.points[1];
+        let point3 = this.points[2]; 
+        return QuadraticCurve.newInstance(point1, point2, point3);
 
-        c.r = calculateRadius(point1, point2);
-        return c;
     }
 
     getRectElement = (): Rect => {
         if (this.type != ElementType.RECT || this.points.length < 2) {
             return new Rect();
         }
-        this.adjustXY();
+        this.adjustPoints1And2();
         let point1 = this.points[0];
         let point2 = this.points[1];
-
-        const r = new Rect();
-        r.x = point1.x;
-        r.y = point1.y;
-        r.width = point2.x - point1.x;
-        r.height = point2.y - point1.y;
-
-        return r;
+        return Rect.newInstance(point1, point2);
     }
-    adjustXY = () => {
+    adjustPoints1And2 = () => {
         let point1 = this.points[0];
         let point2 = this.points[1];
         //swap if negative
@@ -89,12 +92,15 @@ export default
     html = () => {
         if (this.type == ElementType.RECT) {
             const r = this.getRectElement();
-            return `<rect stroke="` + this.strokeColor + `"  x="` + r.x + `" y="` + r.y + `" height="` + r.width + `" width="` + r.height + `"  />`;
-
+            return r.html(this.strokeColor);
         }
         if (this.type == ElementType.CIRCLE) {
             const c = this.getCircleElement();
-            return `<circle stroke="` + this.strokeColor + `"  cx="` + c.x + `" cy="` + c.y + `" r="` + c.r + `"  />`;
+            return c.html(this.strokeColor);
+
+        } if (this.type == ElementType.CURVE) {
+            const c = this.getQuadCurveElement();
+            return c.html(this.strokeColor);
 
         }
         return `<path stroke="` + this.strokeColor + `" d="` + this.getPath() + `" />`;
@@ -114,14 +120,7 @@ export default
             paths += element.html();
         }
         const output = svg.replace("{SVG}", paths);
-         
+
         return output;
     }
-}
-
-const calculateRadius = (point1: SvgPoint, point2: SvgPoint) => {
-    const radiusX: number = point2.x - point1.x;
-    const radiusY: number = point2.y - point1.y;
-    const radius = Math.sqrt(Math.pow(radiusX, 2) + Math.pow(radiusY, 2));
-    return radius;
 }

@@ -20,7 +20,7 @@ class State {
     size: number = 400;
     selectedIndex: number = 0;
     editMode: boolean = true;
-    output?: string; 
+    output?: string;
 }
 class SvgCreator extends BaseComponent {
     state: State = new State();
@@ -49,7 +49,7 @@ class SvgCreator extends BaseComponent {
                 const keyEvent: KeyboardEvent = event as KeyboardEvent;
                 if (keyEvent.key == 'h') {
                     this.straightLine = true;
-                } else if (keyEvent.key =='z') {
+                } else if (keyEvent.key == 'z') {
                     this.updateClosePath(!this.getSelectedElement().closePath);
                 }
             }
@@ -78,7 +78,7 @@ class SvgCreator extends BaseComponent {
     getSelectedElement = (): SvgItem => {
         const elements = this.state.svgElements;
         const el = elements[this.state.selectedIndex];
-       
+
         return el;
     }
     setElementType = (e: ChangeEvent) => {
@@ -108,7 +108,7 @@ class SvgCreator extends BaseComponent {
         element.closePath = value;
         this.updateSelectedElement(element);
     }
-    addSvgElement = (type:ElementType) => {
+    addSvgElement = (type: ElementType) => {
         const elements = this.state.svgElements;
         elements.push(SvgItem.newInstance(type));
         this.setState({ editMode: true, svgElements: elements, selectedIndex: elements.length - 1 });
@@ -161,7 +161,7 @@ class SvgCreator extends BaseComponent {
                     backgroundImage: 'url(' + this.props.imageData + ')',
                 }}>
                     <svg className=" svg-sheet" width={size} height={size}>
-                        <g fill="transparent" className="svg-path">
+                        <g fill="none" className="svg-path">
                             {elements.map((element, i) => {
                                 // console.debug("element.type === ElementType.RECT: ",element.type, ElementType.RECT, (element.type == ElementType.RECT));
                                 if (element.type == ElementType.PATH) {
@@ -169,20 +169,29 @@ class SvgCreator extends BaseComponent {
                                         strokeWidth={selectedIndex == i ? 4 : 2} key={"path-" + i} d={element.getPath()} />
                                 }
                                 if (element.type == ElementType.RECT) {
-                                    
+
                                     const rect = element.getRectElement();
-                                    return <rect stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"} strokeWidth={selectedIndex == i ? 4 : 2} key={"path-" + i}
+                                    return <rect stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)}
+                                        className={this.state.editMode == false ? "path-selectable" : "path-regular"}
+                                        strokeWidth={selectedIndex == i ? 4 : 2} key={"rect-" + i}
                                         x={rect.x} y={rect.y}
                                         width={rect.width} height={rect.height}
                                     />
                                 }
                                 if (element.type == ElementType.CIRCLE) {
-                                   
+
                                     const circle = element.getCircleElement();
-                                    return <circle stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"} strokeWidth={selectedIndex == i ? 4 : 2} key={"path-" + i}
+                                    return <circle stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)}
+                                        className={this.state.editMode == false ? "path-selectable" : "path-regular"}
+                                        strokeWidth={selectedIndex == i ? 4 : 2} key={"circle-" + i}
                                         cx={circle.x} cy={circle.y}
                                         r={circle.r}
                                     />
+                                }
+                                if (element.type == ElementType.CURVE) {
+                                    const c = element.getQuadCurveElement();
+                                    return <path stroke={element.strokeColor} onClick={(e) => this.setActiveIndex(i)} className={this.state.editMode == false ? "path-selectable" : "path-regular"}
+                                        strokeWidth={selectedIndex == i ? 4 : 2} key={"curve-" + i} d={c.getPath()} />
                                 }
                                 return <>{ElementType[element.type]}</>
                             })}
@@ -201,7 +210,7 @@ class SvgCreator extends BaseComponent {
                 </div>
                 <div className="col-md-4">
                     <form className="container-fluid  " onSubmit={(e) => e.preventDefault()}>
-                        <h4><i className="fas fa-palette"/>&nbsp;Options</h4>
+                        <h4><i className="fas fa-palette" />&nbsp;Options</h4>
                         <FormGroup label="Type">
                             {ElementType[element.type]}
                         </FormGroup>
@@ -211,7 +220,7 @@ class SvgCreator extends BaseComponent {
                         <FormGroup label="Close Path">
                             <ToggleButton active={element.closePath}
                                 onClick={this.updateClosePath} />
-                            <br/>
+                            <br />
                             <p>Press <span className="badge badge-dark">Z</span> to toggle Close Path</p>
                         </FormGroup>
                         <FormGroup label="Stroke Color">

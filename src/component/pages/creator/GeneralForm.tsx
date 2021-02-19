@@ -37,6 +37,7 @@ export default class GeneralForm extends Component<Props, any> {
                             <AnchorWithIcon onClick={(e) => { this.add(ElementType.PATH) }} iconClassName="fas fa-draw-polygon" />
                             <AnchorWithIcon onClick={(e) => { this.add(ElementType.CIRCLE) }} iconClassName="far fa-circle" />
                             <AnchorWithIcon onClick={(e) => { this.add(ElementType.RECT) }} iconClassName="far fa-square" />
+                            <AnchorWithIcon onClick={(e) => { this.add(ElementType.CURVE) }} iconClassName="fas fa-circle-notch" />
                         </div>
                     </FormGroup>
                     <FormGroup label="Edit Mode">
