@@ -8,7 +8,7 @@ import { mapCommonUserStateToProps } from '../../../constant/stores';
 import { connect } from 'react-redux';
 import ToggleButton from '../../navigation/ToggleButton';
 import SvgItem from '../../../models/elements/SvgItem';
-import SvgPoint from '../../../models/elements/SvgPoint'; 
+import SvgPoint from '../../../models/elements/SvgPoint';
 import GeneralForm from './GeneralForm';
 import { withRouter } from 'react-router-dom';
 import { WorksheetRect, Points } from './creatorHelper';
@@ -84,7 +84,7 @@ class SvgCreator extends BaseComponent {
         const name = target.name;
         const val = target.type == 'number' ? parseInt(target.value) : target.value;
         const element = this.getSelectedElement();
-        element[name]  = val;
+        element[name] = val;
         this.updateSelectedElement(element);
     }
     updateSelectedElement = (element: SvgItem) => {
@@ -131,7 +131,7 @@ class SvgCreator extends BaseComponent {
         const filteredElements: SvgItem[] = elements.filter((e => e.id == id));
         if (filteredElements.length == 0) return;
         const refElement = filteredElements[0];
-        const refPoint = refElement.getPoint(index);
+        const refPoint = refElement.getPointByIndex(index);
         if (!refPoint) {
             return;
         }
@@ -162,6 +162,7 @@ class SvgCreator extends BaseComponent {
         const size = this.state.size;
         const selectedIndex = this.state.selectedIndex;
         const editMode = this.state.editMode;
+        const boundingRect = element.getBoundingRect();
 
         return <Modal title="Draw Your Svg Path">
             <div className="row">
@@ -169,21 +170,17 @@ class SvgCreator extends BaseComponent {
                     <svg className=" svg-sheet" width={size} height={size}>
                         <g fill="none" className="svg-path">
                             {elements.map((element, i) => {
-                                let active:boolean = selectedIndex == i ;
-                                const strokeWidth =  element.strokeWidth;
-                                const strokeColor = active? '#000': element.strokeColor;
+                                let active: boolean = selectedIndex == i;
+                                const strokeWidth = element.strokeWidth;
+                                const strokeColor = active ? '#000' : element.strokeColor;
                                 const className = this.state.editMode == false ? "path-selectable" : "path-regular";
                                 // console.debug("element.type === ElementType.RECT: ",element.type, ElementType.RECT, (element.type == ElementType.RECT));
-                                if (element.type == ElementType.PATH) {
-                                    return <path stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)} className={className}
-                                        strokeWidth={strokeWidth} key={"path-" + i} d={element.getPath()} />
-                                }
+
                                 if (element.type == ElementType.RECT) {
 
                                     const rect = element.getRectElement();
                                     return <rect stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)}
-                                        className={className}
-                                        strokeWidth={strokeWidth} key={"rect-" + i}
+                                        className={className} strokeWidth={strokeWidth} key={"rect-" + i}
                                         x={rect.x} y={rect.y} width={rect.width} height={rect.height}
                                     />
                                 }
@@ -205,7 +202,10 @@ class SvgCreator extends BaseComponent {
                                     return <ellipse stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)} className={className}
                                         strokeWidth={strokeWidth} key={"curve-" + i} cx={ellipse.x} cy={ellipse.y} rx={ellipse.rx} ry={ellipse.ry} />
                                 }
-                                return <g>{ElementType[element.type]}</g>
+                                const path = element.getPathElement();
+
+                                return <path stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)} className={className}
+                                    strokeWidth={strokeWidth} key={"path-" + i} d={path.getPath()} />
                             })}
                         </g>
 
@@ -218,6 +218,10 @@ class SvgCreator extends BaseComponent {
                                         <Points key={"pts-" + i} active={false} pointColor={pointColor} element={el} onClick={this.onPointClick} />
                                     )
                                 })}
+                                {/* bounding rect */}
+                                <rect x={boundingRect.x} y={boundingRect.y} width={boundingRect.width} height={boundingRect.height}
+                                   fill="none"  stroke={boundingRect.strokeColor} strokeWidth={boundingRect.strokeWidth}
+                                />
                                 {/* selected element point */}
                                 <Points active pointColor={pointColor} element={element} onClick={this.onPointClick} />
                             </g> : null
@@ -227,10 +231,10 @@ class SvgCreator extends BaseComponent {
                 <div className="col-md-4">
                     <form className="container-fluid  " onSubmit={(e) => e.preventDefault()}>
                         <h4><i className="fas fa-palette" />&nbsp;Options</h4>
-                        <FormGroup label="Type" children={ElementType[element.type] +" ["+this.state.selectedIndex+"]"} />
+                        <FormGroup label="Type" children={ElementType[element.type] + " [" + this.state.selectedIndex + "]"} />
                         <FormGroup label="Close Path">
                             <ToggleButton active={element.closePath} onClick={this.updateClosePath} /><br />
-                            <p>Press <span className={element.closePath?"badge badge-success":"badge badge-dark"}>Z</span> to toggle Close Path</p>
+                            <p>Press <span className={element.closePath ? "badge badge-success" : "badge badge-dark"}>Z</span> to toggle Close Path</p>
                         </FormGroup>
                         <FormGroup label="Stroke Color">
                             <input type="color" className="form-control" name="strokeColor" value={element.strokeColor}
