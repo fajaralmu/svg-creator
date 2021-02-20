@@ -183,8 +183,8 @@ export default
         return res;
     }
 
-    public static getOutput = (items: SvgItem[], size: number): string => {
-        let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="` + size + `" height="` + size + `"><g stroke="black" fill="transparent" stroke-width="2">
+    public static getOutput = (items: SvgItem[], w: number, h  : number): string => {
+        let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="` + w + `" height="` + h + `"><g stroke="black" fill="transparent" stroke-width="2">
         {SVG}</g></svg>`;
         let paths = "";
         for (let i = 0; i < items.length; i++) {

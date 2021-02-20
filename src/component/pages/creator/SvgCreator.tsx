@@ -13,11 +13,13 @@ import GeneralForm from './GeneralForm';
 import { withRouter } from 'react-router-dom';
 import { WorksheetRect, Points } from './creatorHelper';
 import { ElementType } from '../../../constant/ElementType';
+import AnchorWithSvg from './../../navigation/AnchorWithSvg';
 
 class State {
     svgElements: SvgItem[] = [new SvgItem()];
     pointColor: string = "#cccccc";
-    size: number = 400;
+    width: number = 400;
+    height: number = 400;
     selectedIndex: number = 0;
     editMode: boolean = true;
     output?: string;
@@ -152,27 +154,25 @@ class SvgCreator extends BaseComponent {
     }
     setEditMode = (val: boolean) => { this.setState({ editMode: val }); }
     showOutput = () => {
-        this.setState({ output: SvgItem.getOutput(this.state.svgElements, this.state.size) });
+        this.setState({ output: SvgItem.getOutput(this.state.svgElements, this.state.width, this.state.height) });
     }
 
     render = () => {
         const elements: SvgItem[] = this.state.svgElements;
         const element: SvgItem = this.getSelectedElement();
         const pointColor = this.state.pointColor;
-        const size = this.state.size;
-        const selectedIndex = this.state.selectedIndex;
+        const w = this.state.width, h = this.state.height;
         const editMode = this.state.editMode;
         const boundingRect = element.getBoundingRect();
 
         return <Modal title="Draw Your Svg Path">
             <div className="row">
-                <div className="col-md-8 svg-wrapper text-center" style={{ backgroundImage: 'url(' + this.props.imageData + ')', }}>
-                    <svg className=" svg-sheet" width={size} height={size}>
+                <div className="col-md-7 svg-wrapper text-center" style={{ backgroundImage: 'url(' + this.props.imageData + ')', }}>
+                    <svg className=" svg-sheet" width={w} height={h}>
                         <g fill="none" className="svg-path">
                             {elements.map((element, i) => {
-                                let active: boolean = selectedIndex == i;
                                 const strokeWidth = element.strokeWidth;
-                                const strokeColor = active ? '#000' : element.strokeColor;
+                                const strokeColor = element.strokeColor;
                                 const className = this.state.editMode == false ? "path-selectable" : "path-regular";
                                 // console.debug("element.type === ElementType.RECT: ",element.type, ElementType.RECT, (element.type == ElementType.RECT));
 
@@ -211,7 +211,7 @@ class SvgCreator extends BaseComponent {
 
                         {editMode ?
                             <g>
-                                <WorksheetRect size={size} addPoint={this.addPoint} />
+                                <WorksheetRect size={w} addPoint={this.addPoint} />
                                 {elements.map((el, i) => {
                                     if (i == this.state.selectedIndex) return null
                                     return (
@@ -220,13 +220,24 @@ class SvgCreator extends BaseComponent {
                                 })}
                                 {/* bounding rect */}
                                 <rect x={boundingRect.x} y={boundingRect.y} width={boundingRect.width} height={boundingRect.height}
-                                   fill="none"  stroke={boundingRect.strokeColor} strokeWidth={boundingRect.strokeWidth}
+                                    fill="none" stroke={boundingRect.strokeColor} strokeWidth={boundingRect.strokeWidth}
                                 />
                                 {/* selected element point */}
                                 <Points active pointColor={pointColor} element={element} onClick={this.onPointClick} />
                             </g> : null
                         }
                     </svg>
+                </div>
+                <div className="col-md-1">
+                    <div className=" btn-group-vertical">
+                        <span className="btn btn-dark">Items:  {elements.length}
+                        </span>
+                        <AnchorWithIcon onClick={(e) => { this.addSvgElement(ElementType.PATH) }} iconClassName="fas fa-draw-polygon" />
+                        <AnchorWithIcon onClick={(e) => { this.addSvgElement(ElementType.CIRCLE) }} iconClassName="far fa-circle" />
+                        <AnchorWithIcon onClick={(e) => { this.addSvgElement(ElementType.RECT) }} iconClassName="far fa-square" />
+                        <AnchorWithSvg onClick={(e) => { this.addSvgElement(ElementType.CURVE) }} icon="curve" />
+                        <AnchorWithSvg onClick={(e) => { this.addSvgElement(ElementType.ELLIPSE) }} icon="ellips" />
+                    </div>
                 </div>
                 <div className="col-md-4">
                     <form className="container-fluid  " onSubmit={(e) => e.preventDefault()}>
@@ -259,8 +270,8 @@ class SvgCreator extends BaseComponent {
             </div>
             <p />
             <GeneralForm elements={elements} handleInputChange={this.handleInputChange}
-                showOutput={this.showOutput} addSvgElement={this.addSvgElement}
-                selectedIndex={this.state.selectedIndex} size={this.state.size}
+                showOutput={this.showOutput}
+                selectedIndex={this.state.selectedIndex} width={this.state.width} height={this.state.height}
                 pointColor={this.state.pointColor} output={this.state.output}
             />
         </Modal>
