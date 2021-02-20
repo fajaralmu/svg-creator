@@ -208,7 +208,9 @@ class SvgCreator extends BaseComponent {
                                     strokeWidth={strokeWidth} key={"path-" + i} d={path.getPath()} />
                             })}
                         </g>
-
+                        <rect x={boundingRect.x} y={boundingRect.y} width={boundingRect.width} height={boundingRect.height}
+                                    fill="none" stroke={boundingRect.strokeColor} strokeWidth={boundingRect.strokeWidth}
+                                />
                         {editMode ?
                             <g>
                                 <WorksheetRect size={w} addPoint={this.addPoint} />
@@ -219,9 +221,7 @@ class SvgCreator extends BaseComponent {
                                     )
                                 })}
                                 {/* bounding rect */}
-                                <rect x={boundingRect.x} y={boundingRect.y} width={boundingRect.width} height={boundingRect.height}
-                                    fill="none" stroke={boundingRect.strokeColor} strokeWidth={boundingRect.strokeWidth}
-                                />
+                               
                                 {/* selected element point */}
                                 <Points active pointColor={pointColor} element={element} onClick={this.onPointClick} />
                             </g> : null
