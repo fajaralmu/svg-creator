@@ -19,7 +19,7 @@ export default class Path extends BaseElement {
     }
 
     html = () => {
-        return `<path stroke-width="`+this.strokeWidth+`" stroke="` + this.strokeColor + `" d="` + this.getPath() + `" />`;
+        return `<path  `+this.baseProperties()+`  d="` + this.getPath() + `" />`;
     }
 
     public static newInstance = (ref:SvgItem) => {

@@ -22,7 +22,7 @@ export default class QuadraticCurve extends BaseElement {
         return fullPath;
     }
     html = () => {
-        return `<path stroke-width="` + this.strokeWidth + `" stroke="` + this.strokeColor + `"  d="` + this.getPath() + `"/>`;
+        return `<path  `+this.baseProperties()+`  d="` + this.getPath() + `"/>`;
     }
 
     public static newInstance = (ref: SvgItem, ...points: SvgPoint[]): QuadraticCurve => {

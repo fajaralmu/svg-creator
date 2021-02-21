@@ -15,7 +15,7 @@ export default class Circle extends BaseElement {
 
     html = () => {
         const c = this;
-        return `<circle stroke-width="`+this.strokeWidth+`" stroke="` + this.strokeColor + `"  cx="` + c.x + `" cy="` + c.y + `" r="` + c.r + `"  />`;
+        return `<circle  `+this.baseProperties()+`   cx="` + c.x + `" cy="` + c.y + `" r="` + c.r + `"  />`;
     }
 
     public static newInstance = (ref:SvgItem, middlePoint:SvgPoint, radiusPoint:SvgPoint) => {

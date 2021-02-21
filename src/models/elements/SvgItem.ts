@@ -11,6 +11,7 @@ export default
     class SvgItem {
     points: SvgPoint[] = [];
     closePath: boolean = false;
+    fillColor: string = "none";
     strokeColor: string = "#20f08d";
     strokeWidth: number = 2;
     type: ElementType = ElementType.PATH;

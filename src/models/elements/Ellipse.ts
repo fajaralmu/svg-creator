@@ -16,7 +16,7 @@ export default class Ellipse extends BaseElement {
 
     html = () => {
         const c = this;
-        return `<ellipse  stroke-width="`+this.strokeWidth+`" stroke="` + this.strokeColor + `"  cx="` + c.x + `" cy="` + c.y + `" rx="` + c.rx + `"  ry="` + c.ry + `"  />`;
+        return `<ellipse  `+this.baseProperties()+`   cx="` + c.x + `" cy="` + c.y + `" rx="` + c.rx + `"  ry="` + c.ry + `"  />`;
     }
 
     public static newInstance = (ref:SvgItem, middle:SvgPoint, radiusXPoint:SvgPoint, radiusYPoint: SvgPoint) => {

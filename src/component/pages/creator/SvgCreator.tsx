@@ -11,7 +11,7 @@ import SvgItem from '../../../models/elements/SvgItem';
 import SvgPoint from '../../../models/elements/SvgPoint';
 import GeneralForm from './SettingForm';
 import { withRouter } from 'react-router-dom';
-import { WorksheetRect  } from './creatorHelper';
+import { WorksheetRect } from './creatorHelper';
 import { ElementType } from '../../../constant/ElementType';
 import AnchorWithSvg from './../../navigation/AnchorWithSvg';
 import Points from './Points';
@@ -24,7 +24,7 @@ class State {
     selectedIndex: number = 0;
     editMode: boolean = true;
     output?: string;
-    selectedPoint: SvgPoint|undefined;
+    selectedPoint: SvgPoint | undefined;
 }
 class SvgCreator extends BaseComponent {
     state: State = new State();
@@ -81,6 +81,11 @@ class SvgCreator extends BaseComponent {
     addPointToCurrentElement = (p: SvgPoint) => {
         const element = this.getSelectedElement();
         element.points.push(p);
+        this.updateSelectedElement(element);
+    }
+    setElementNoColor = () => {
+        const element = this.getSelectedElement();
+        element.fillColor = "none";
         this.updateSelectedElement(element);
     }
     updateSelectedElementProp = (e: ChangeEvent) => {
@@ -158,10 +163,10 @@ class SvgCreator extends BaseComponent {
     showOutput = () => {
         this.setState({ output: SvgItem.getOutput(this.state.svgElements, this.state.width, this.state.height) });
     }
-    setSelectedPoint = (p?:SvgPoint) => {
-        this.setState({selectedPoint: p});
+    setSelectedPoint = (p?: SvgPoint) => {
+        this.setState({ selectedPoint: p });
     }
-    removeSelectedPoint = (p:SvgPoint) => {
+    removeSelectedPoint = (p: SvgPoint) => {
         this.setSelectedPoint(undefined);
     }
     render = () => {
@@ -171,7 +176,7 @@ class SvgCreator extends BaseComponent {
         const w = this.state.width, h = this.state.height;
         const editMode = this.state.editMode;
         const boundingRect = element.getBoundingRect();
-        const selectedPoint:SvgPoint|undefined = this.state.selectedPoint;
+        const selectedPoint: SvgPoint | undefined = this.state.selectedPoint;
 
         return <Modal title="Draw Your Svg Path">
             <div className="row">
@@ -181,44 +186,42 @@ class SvgCreator extends BaseComponent {
                             {elements.map((element, i) => {
                                 const strokeWidth = element.strokeWidth;
                                 const strokeColor = element.strokeColor;
+                                const fill = element.fillColor;
                                 const className = this.state.editMode == false ? "path-selectable" : "path-regular";
                                 // console.debug("element.type === ElementType.RECT: ",element.type, ElementType.RECT, (element.type == ElementType.RECT));
-
+                                const baseProps = { onClick: (e) => this.setActiveIndex(i), className: className, stroke: strokeColor, fill: fill, strokeWidth: strokeWidth }
                                 if (element.type == ElementType.RECT) {
 
                                     const rect = element.getRectElement();
-                                    return <rect stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)}
-                                        className={className} strokeWidth={strokeWidth} key={"rect-" + i}
+                                    return <rect
+                                        {...baseProps} key={"rect-" + i}
                                         x={rect.x} y={rect.y} width={rect.width} height={rect.height}
                                     />
                                 }
                                 if (element.type == ElementType.CIRCLE) {
                                     const circle = element.getCircleElement();
-                                    return <circle fill="none" stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)}
-                                        className={className}
-                                        strokeWidth={strokeWidth} key={"circle-" + i}
+                                    return <circle
+                                        {...baseProps} key={"circle-" + i}
                                         cx={circle.x} cy={circle.y} r={circle.r}
                                     />
                                 }
                                 if (element.type == ElementType.CURVE) {
                                     const curve = element.getQuadCurveElement();
-                                    return <path stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)} className={className}
-                                        strokeWidth={strokeWidth} key={"curve-" + i} d={curve.getPath()} />
+                                    return <path
+                                        {...baseProps} key={"curve-" + i} d={curve.getPath()} />
                                 }
                                 if (element.type == ElementType.ELLIPSE) {
                                     const ellipse = element.getEllipseElement();
-                                    return <ellipse stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)} className={className}
-                                        strokeWidth={strokeWidth} key={"curve-" + i} cx={ellipse.x} cy={ellipse.y} rx={ellipse.rx} ry={ellipse.ry} />
+                                    return <ellipse {...baseProps} key={"curve-" + i} cx={ellipse.x} cy={ellipse.y} rx={ellipse.rx} ry={ellipse.ry} />
                                 }
                                 const path = element.getPathElement();
 
-                                return <path stroke={strokeColor} onClick={(e) => this.setActiveIndex(i)} className={className}
-                                    strokeWidth={strokeWidth} key={"path-" + i} d={path.getPath()} />
+                                return <path {...baseProps}  key={"path-" + i} d={path.getPath()} />
                             })}
                         </g>
                         <rect x={boundingRect.x} y={boundingRect.y} width={boundingRect.width} height={boundingRect.height}
-                                    fill="none" stroke={boundingRect.strokeColor} strokeWidth={boundingRect.strokeWidth}
-                                />
+                            fill="none" stroke={boundingRect.strokeColor} strokeWidth={boundingRect.strokeWidth}
+                        />
                         {editMode ?
                             <g>
                                 <WorksheetRect size={w} addPoint={this.addPoint} />
@@ -229,9 +232,9 @@ class SvgCreator extends BaseComponent {
                                     )
                                 })}
                                 {/* bounding rect */}
-                               
+
                                 {/* selected element point */}
-                                <Points onMouseOver={this.setSelectedPoint} onMouseOut={this.removeSelectedPoint}  active pointColor={pointColor} element={element} onClick={this.onPointClick} />
+                                <Points onMouseOver={this.setSelectedPoint} onMouseOut={this.removeSelectedPoint} active pointColor={pointColor} element={element} onClick={this.onPointClick} />
                             </g> : null
                         }
                     </svg>
@@ -245,9 +248,9 @@ class SvgCreator extends BaseComponent {
                         <AnchorWithIcon onClick={(e) => { this.addSvgElement(ElementType.RECT) }} iconClassName="far fa-square" />
                         <AnchorWithSvg onClick={(e) => { this.addSvgElement(ElementType.CURVE) }} icon="curve" />
                         <AnchorWithSvg onClick={(e) => { this.addSvgElement(ElementType.ELLIPSE) }} icon="ellips" />
-                        {selectedPoint?
-                        <i>x:{selectedPoint.x} y:{selectedPoint.y}</i>
-                        :null}
+                        {selectedPoint ?
+                            <i>x:{selectedPoint.x} y:{selectedPoint.y}</i>
+                            : null}
                     </div>
                 </div>
                 <div className="col-md-4">
@@ -258,9 +261,14 @@ class SvgCreator extends BaseComponent {
                             <ToggleButton active={element.closePath} onClick={this.updateClosePath} /><br />
                             <p>Press <span className={element.closePath ? "badge badge-success" : "badge badge-dark"}>Z</span> to toggle Close Path</p>
                         </FormGroup>
+                        <FormGroup label="Fill Color">
+                            <input type="color" className="form-control" name="fillColor" value={element.fillColor}
+                                onChange={this.updateSelectedElementProp} />
+                        </FormGroup>
                         <FormGroup label="Stroke Color">
                             <input type="color" className="form-control" name="strokeColor" value={element.strokeColor}
                                 onChange={this.updateSelectedElementProp} />
+                            <AnchorWithIcon iconClassName="fas fa-times" className="btn btn-dark btn-sm" onClick={this.setElementNoColor} >No Color</AnchorWithIcon>
                         </FormGroup>
                         <FormGroup label="Stroke Width">
                             <input type="number" className="form-control" name="strokeWidth" value={element.strokeWidth}

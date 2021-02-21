@@ -10,7 +10,7 @@ export default class Rect extends BaseElement {
 
     html = ( )=> {
         const r=  this;
-        return `<rect stroke-width="`+this.strokeWidth+`" stroke="` + this.strokeColor + `"  x="` + r.x + `" y="` + r.y + `" width="` + r.width + `" height="` + r.height + `"  />`;
+        return `<rect  `+this.baseProperties()+`   x="` + r.x + `" y="` + r.y + `" width="` + r.width + `" height="` + r.height + `"  />`;
 
     }
 
