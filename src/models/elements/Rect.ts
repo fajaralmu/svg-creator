@@ -23,4 +23,16 @@ export default class Rect extends BaseElement {
         r.height = end.y - start.y;
         return r;
     }
+
+    public static  getBoundingRect = (xMin:number, xMax:number, yMin:number, yMax:number):Rect => {
+        
+        const r = new Rect();
+        r.x = xMin;
+        r.y = yMin;
+        r.width = xMax - xMin;
+        r.height = yMax - yMin;
+        r.strokeColor = '#ccc';
+        r.strokeWidth = 1;
+        return r;
+    }
 }

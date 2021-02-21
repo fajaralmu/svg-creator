@@ -1,8 +1,7 @@
 
 import BaseElement from './BaseElement';
-import { uniqueId } from './../../utils/StringUtil';
 export default class SvgPoint extends BaseElement{
-    id:string = uniqueId();
+   
 
     public static newInstanceFromReference = (refPoint:SvgPoint) : SvgPoint => {
         const p = new SvgPoint();
@@ -31,7 +30,7 @@ export default class SvgPoint extends BaseElement{
         }
         return p;
     }
-    public static  newInstance = (e: React.MouseEvent<SVGRectElement>, target: SVGRectElement): SvgPoint => {
+    public static  newInstanceFromEvent = (e: React.MouseEvent<any>, target: SVGRectElement): SvgPoint => {
         var dim = target.getBoundingClientRect();
         const p = new SvgPoint();
 
