@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import ToggleButton from '../../navigation/ToggleButton';
 import SvgItem from '../../../models/elements/SvgItem';
 import SvgPoint from '../../../models/elements/SvgPoint';
-import GeneralForm from './GeneralForm';
+import GeneralForm from './SettingForm';
 import { withRouter } from 'react-router-dom';
 import { WorksheetRect  } from './creatorHelper';
 import { ElementType } from '../../../constant/ElementType';
