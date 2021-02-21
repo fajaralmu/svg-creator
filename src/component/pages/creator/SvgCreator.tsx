@@ -115,7 +115,7 @@ class SvgCreator extends BaseComponent {
         const element = Object.assign(new SvgItem, this.getSelectedElement());
         if (this.removeSelectedElement()) {
             elements.push(element);
-            this.setState({ svgElements: elements, selectedIndex:elements.length-1 });
+            this.setState({ svgElements: elements, selectedIndex: elements.length - 1 });
         }
     }
     orderBack = (e) => {
@@ -123,7 +123,7 @@ class SvgCreator extends BaseComponent {
         const element = Object.assign(new SvgItem, this.getSelectedElement());
         if (this.removeSelectedElement()) {
             elements.unshift(element)
-            this.setState({ svgElements: elements, selectedIndex: 0});
+            this.setState({ svgElements: elements, selectedIndex: 0 });
         }
     }
     removeSelectedElement = () => {
@@ -205,15 +205,15 @@ class SvgCreator extends BaseComponent {
                                 const fill = element.fillColor;
                                 const className = this.state.editMode == false ? "path-selectable" : "path-regular";
                                 // console.debug("element.type === ElementType.RECT: ",element.type, ElementType.RECT, (element.type == ElementType.RECT));
-                                const baseProps = {  onClick: (e) => this.setActiveIndex(i), className: className, stroke: strokeColor, fill: fill, strokeWidth: strokeWidth }
+                                const baseProps = { onClick: (e) => this.setActiveIndex(i), className: className, stroke: strokeColor, fill: fill, strokeWidth: strokeWidth }
                                 if (element.type == ElementType.RECT) {
                                     const rect = element.getRectElement();
                                     return <rect  {...baseProps} key={"rect-" + i}
-                                        x={rect.x} y={rect.y} width={rect.width} height={rect.height}/>
+                                        x={rect.x} y={rect.y} width={rect.width} height={rect.height} />
                                 }
                                 if (element.type == ElementType.CIRCLE) {
                                     const circle = element.getCircleElement();
-                                    return <circle {...baseProps} key={"circle-" + i} cx={circle.x} cy={circle.y} r={circle.r}/>
+                                    return <circle {...baseProps} key={"circle-" + i} cx={circle.x} cy={circle.y} r={circle.r} />
                                 }
                                 if (element.type == ElementType.CURVE) {
                                     const curve = element.getQuadCurveElement();
@@ -263,29 +263,33 @@ class SvgCreator extends BaseComponent {
                 <div className="col-md-4">
                     <form className="container-fluid  " onSubmit={(e) => e.preventDefault()}>
                         <h4><i className="fas fa-palette" />&nbsp;Options</h4>
-                        <FormGroup label="Type" children={element.id+" "+ElementType[element.type] + " [" + this.state.selectedIndex + "]"} />
+                        <FormGroup label="Type" children={element.id + " " + ElementType[element.type] + " [" + this.state.selectedIndex + "]"} />
                         <FormGroup label="Close Path">
                             <ToggleButton active={element.closePath} onClick={this.updateClosePath} /><br />
                             <p>Press <span className={element.closePath ? "badge badge-success" : "badge badge-dark"}>Z</span> to toggle Close Path</p>
                         </FormGroup>
                         <FormGroup label="Fill Color">
-                            <input type="color" className="form-control" name="fillColor" value={element.fillColor}
-                                onChange={this.updateSelectedElementProp} />
+                            <div className="input-group">
+                                <input type="color" className="form-control" name="fillColor" value={element.fillColor}
+                                    onChange={this.updateSelectedElementProp} />
+                                <div className="input-group-append">
+                                    <AnchorWithIcon iconClassName="fas fa-times" onClick={this.setElementNoColor} />
+                                </div>
+                            </div>
                         </FormGroup>
-                        <FormGroup label="Stroke Color">
+                        <FormGroup label="Stroke Color"> 
                             <input type="color" className="form-control" name="strokeColor" value={element.strokeColor}
-                                onChange={this.updateSelectedElementProp} />
-                            <AnchorWithIcon iconClassName="fas fa-times" className="btn btn-dark btn-sm" onClick={this.setElementNoColor} >No Color</AnchorWithIcon>
+                                onChange={this.updateSelectedElementProp} /> 
                         </FormGroup>
                         <FormGroup label="Stroke Width">
                             <input type="number" className="form-control" name="strokeWidth" value={element.strokeWidth}
                                 onChange={this.updateSelectedElementProp} />
                         </FormGroup>
                         <FormGroup label="Order">
-                           <div className="btn-group">
-                               <AnchorWithIcon onClick={this.orderFront} iconClassName="fas fa-layer-group" >Front</AnchorWithIcon>
-                               <AnchorWithIcon  onClick={this.orderBack}  iconClassName="fas fa-layer-group" >Back</AnchorWithIcon>
-                           </div>
+                            <div className="btn-group">
+                                <AnchorWithIcon onClick={this.orderFront} iconClassName="fas fa-angle-up" >Front</AnchorWithIcon>
+                                <AnchorWithIcon onClick={this.orderBack} iconClassName="fas fa-angle-down" >Back</AnchorWithIcon>
+                            </div>
                         </FormGroup>
                         <FormGroup label="Edit Mode">
                             <ToggleButton active={this.state.editMode == true} onClick={this.setEditMode} />
