@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 interface Props {
-    onClick?:(e:any)=>any; 
+    onClick?:(e?:any)=>any; 
     show?:boolean,
     className?:string,
     style?:any,

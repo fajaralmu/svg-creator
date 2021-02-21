@@ -11,7 +11,7 @@ import SvgItem from '../../../models/elements/SvgItem';
 import SvgPoint from '../../../models/elements/SvgPoint';
 import GeneralForm from './SettingForm';
 import { withRouter } from 'react-router-dom';
-import { WorksheetRect } from './creatorHelper';
+import { BoundingRect, WorksheetRect } from './creatorHelper';
 import { ElementType } from '../../../constant/ElementType';
 import AnchorWithSvg from './../../navigation/AnchorWithSvg';
 import Points from './Points';
@@ -110,6 +110,22 @@ class SvgCreator extends BaseComponent {
         elements.push(SvgItem.newInstance(type));
         this.setState({ editMode: true, svgElements: elements, selectedIndex: elements.length - 1 });
     }
+    orderFront = (e) => {
+        const elements = this.state.svgElements;
+        const element = Object.assign(new SvgItem, this.getSelectedElement());
+        if (this.removeSelectedElement()) {
+            elements.push(element);
+            this.setState({ svgElements: elements, selectedIndex:elements.length-1 });
+        }
+    }
+    orderBack = (e) => {
+        const elements = this.state.svgElements;
+        const element = Object.assign(new SvgItem, this.getSelectedElement());
+        if (this.removeSelectedElement()) {
+            elements.unshift(element)
+            this.setState({ svgElements: elements, selectedIndex: 0});
+        }
+    }
     removeSelectedElement = () => {
         const elements = this.state.svgElements;
         if (elements.length <= 1) {
@@ -117,7 +133,7 @@ class SvgCreator extends BaseComponent {
                 elements[this.state.selectedIndex].points = [];
                 this.setState({ svgElements: elements });
             } catch (error) { console.error(error) }
-            return;
+            return false;
         }
         for (let i = 0; i < elements.length; i++) {
             if (i == this.state.selectedIndex) {
@@ -126,6 +142,7 @@ class SvgCreator extends BaseComponent {
             }
         }
         this.setState({ svgElements: elements, selectedIndex: elements.length - 1 });
+        return true;
     }
     onPointClick = (id: string, index: number) => {
         if (id == this.getSelectedElement().id) {
@@ -184,31 +201,23 @@ class SvgCreator extends BaseComponent {
                     <svg className=" svg-sheet" width={w} height={h}>
                         <g fill="none" className="svg-path">
                             {elements.map((element, i) => {
-                                const strokeWidth = element.strokeWidth;
-                                const strokeColor = element.strokeColor;
+                                const strokeWidth = element.strokeWidth, strokeColor = element.strokeColor;
                                 const fill = element.fillColor;
                                 const className = this.state.editMode == false ? "path-selectable" : "path-regular";
                                 // console.debug("element.type === ElementType.RECT: ",element.type, ElementType.RECT, (element.type == ElementType.RECT));
-                                const baseProps = { onClick: (e) => this.setActiveIndex(i), className: className, stroke: strokeColor, fill: fill, strokeWidth: strokeWidth }
+                                const baseProps = {  onClick: (e) => this.setActiveIndex(i), className: className, stroke: strokeColor, fill: fill, strokeWidth: strokeWidth }
                                 if (element.type == ElementType.RECT) {
-
                                     const rect = element.getRectElement();
-                                    return <rect
-                                        {...baseProps} key={"rect-" + i}
-                                        x={rect.x} y={rect.y} width={rect.width} height={rect.height}
-                                    />
+                                    return <rect  {...baseProps} key={"rect-" + i}
+                                        x={rect.x} y={rect.y} width={rect.width} height={rect.height}/>
                                 }
                                 if (element.type == ElementType.CIRCLE) {
                                     const circle = element.getCircleElement();
-                                    return <circle
-                                        {...baseProps} key={"circle-" + i}
-                                        cx={circle.x} cy={circle.y} r={circle.r}
-                                    />
+                                    return <circle {...baseProps} key={"circle-" + i} cx={circle.x} cy={circle.y} r={circle.r}/>
                                 }
                                 if (element.type == ElementType.CURVE) {
                                     const curve = element.getQuadCurveElement();
-                                    return <path
-                                        {...baseProps} key={"curve-" + i} d={curve.getPath()} />
+                                    return <path  {...baseProps} key={"curve-" + i} d={curve.getPath()} />
                                 }
                                 if (element.type == ElementType.ELLIPSE) {
                                     const ellipse = element.getEllipseElement();
@@ -216,12 +225,10 @@ class SvgCreator extends BaseComponent {
                                 }
                                 const path = element.getPathElement();
 
-                                return <path {...baseProps}  key={"path-" + i} d={path.getPath()} />
+                                return <path {...baseProps} key={"path-" + i} d={path.getPath()} />
                             })}
                         </g>
-                        <rect x={boundingRect.x} y={boundingRect.y} width={boundingRect.width} height={boundingRect.height}
-                            fill="none" stroke={boundingRect.strokeColor} strokeWidth={boundingRect.strokeWidth}
-                        />
+                        <BoundingRect rect={boundingRect} />
                         {editMode ?
                             <g>
                                 <WorksheetRect size={w} addPoint={this.addPoint} />
@@ -256,7 +263,7 @@ class SvgCreator extends BaseComponent {
                 <div className="col-md-4">
                     <form className="container-fluid  " onSubmit={(e) => e.preventDefault()}>
                         <h4><i className="fas fa-palette" />&nbsp;Options</h4>
-                        <FormGroup label="Type" children={ElementType[element.type] + " [" + this.state.selectedIndex + "]"} />
+                        <FormGroup label="Type" children={element.id+" "+ElementType[element.type] + " [" + this.state.selectedIndex + "]"} />
                         <FormGroup label="Close Path">
                             <ToggleButton active={element.closePath} onClick={this.updateClosePath} /><br />
                             <p>Press <span className={element.closePath ? "badge badge-success" : "badge badge-dark"}>Z</span> to toggle Close Path</p>
@@ -273,6 +280,12 @@ class SvgCreator extends BaseComponent {
                         <FormGroup label="Stroke Width">
                             <input type="number" className="form-control" name="strokeWidth" value={element.strokeWidth}
                                 onChange={this.updateSelectedElementProp} />
+                        </FormGroup>
+                        <FormGroup label="Order">
+                           <div className="btn-group">
+                               <AnchorWithIcon onClick={this.orderFront} iconClassName="fas fa-layer-group" >Front</AnchorWithIcon>
+                               <AnchorWithIcon  onClick={this.orderBack}  iconClassName="fas fa-layer-group" >Back</AnchorWithIcon>
+                           </div>
                         </FormGroup>
                         <FormGroup label="Edit Mode">
                             <ToggleButton active={this.state.editMode == true} onClick={this.setEditMode} />
