@@ -83,12 +83,12 @@ export default class Points extends Component<Props, State> {
 interface ContextMenuProps {
     point: SvgPoint, closeMenu(): any
     movePoint(): any, removePoint(): any,
-    svgWidth:number, svgHeight:number
+    svgWidth: number, svgHeight: number
 }
 class ContextMenu extends Component<ContextMenuProps, any> {
     menuHeight = 75;
-    menuWidth = 70;
-    calculatePosY = ():number => {
+    menuWidth = 55;
+    calculatePosY = (): number => {
         const p = this.props.point;
         if (this.exceedMaxHeight()) {
             return p.y - this.menuHeight;
@@ -103,17 +103,17 @@ class ContextMenu extends Component<ContextMenuProps, any> {
         const p = props.point;
         const x = p.x - 25;
         const y = this.calculatePosY();
-        
+
         return (
             <g>
-                <rect stroke="#ccc" x={x} y={y} width={this.menuWidth} height={this.menuHeight} fill="#fff" />
+                <rect rx={5} ry={5} stroke="#343a40" x={x} y={y} width={this.menuWidth} height={this.menuHeight} fill="#fff" />
 
-                <foreignObject x={x} y={y-5} width={this.menuWidth} height={this.menuHeight}>
-                    <a className="text-dark" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.movePoint} >Move</a>
-                    <br />
-                    <a className="text-dark" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.closeMenu} >Close</a>
+                <foreignObject x={x} y={y - 5} width={this.menuWidth} height={this.menuHeight}>
+                    <a className="text-info" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.movePoint} >Move</a>
                     <br />
                     <a className="text-danger" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.removePoint} >Remove</a>
+                    <br />
+                    <a className="text-dark" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.closeMenu} >Close</a>
                 </foreignObject>
             </g>
         )
