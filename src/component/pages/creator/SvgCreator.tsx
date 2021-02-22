@@ -14,8 +14,7 @@ import { withRouter } from 'react-router-dom';
 import { BoundingRect, PointInfo, WorksheetRect } from './creatorHelper';
 import { ElementType } from '../../../constant/ElementType';
 import AnchorWithSvg from './../../navigation/AnchorWithSvg';
-import Points from './Points';
-import { doItLater } from './../../../utils/EventUtil';
+import Points from './Points'; 
 
 class State {
     svgElements: SvgItem[] = [new SvgItem()];
@@ -30,6 +29,7 @@ class State {
 class SvgCreator extends BaseComponent {
     state: State = new State();
     straightLine: boolean = false;
+    activePointRef: React.RefObject<Points> = React.createRef();
     // deleteMode: boolean = false;
     constructor(props) {
         super(props, false);
@@ -71,6 +71,10 @@ class SvgCreator extends BaseComponent {
         if (!p) return;
         p.updatePosition(e);
         this.updateSelectedPoint(p);
+    }
+
+    movePoint = (index:number) => {
+        this.setState({selectedPointIndex:index, dragMode:true});
     }
 
     addPoint = (e: React.MouseEvent<SVGRectElement>): void => {
@@ -123,6 +127,9 @@ class SvgCreator extends BaseComponent {
     updateSelectedElement = (element: SvgItem) => {
         const elements = this.state.svgElements;
         elements[this.state.selectedIndex] = element;
+        if (this.activePointRef.current) {
+            this.activePointRef.current.closeContextMenu();
+        }
         this.setState({ svgElements: elements }, this.setNullPointIndexLater);
     }
     setNullPointIndexLater = () => {
@@ -198,11 +205,11 @@ class SvgCreator extends BaseComponent {
         this.setState({ selectedPointIndex: element.pointCount() - 1, }, () =>
             this.updateSelectedElement(element));
     }
-    removePoint = () => {
+    removePoint = (index?:number) => {
         const element = this.getSelectedElement();
         try {
             for (let i = 0; i < element.points.length; i++) {
-                if (i == this.state.selectedPointIndex) {
+                if ((index == undefined && i == this.state.selectedPointIndex) || i == index) {
                     element.points.splice(i, 1);
                     break;
                 }
@@ -238,7 +245,7 @@ class SvgCreator extends BaseComponent {
 
         return <Modal title="Draw Your Svg Path">
             <div className="row">
-                <div className="col-md-7 svg-wrapper text-center" style={{ backgroundImage: 'url(' + this.props.imageData + ')', }}>
+                <div className="col-md-6 svg-wrapper text-center" style={{ backgroundImage: 'url(' + this.props.imageData + ')', }}>
                     <svg className=" svg-sheet" width={w} height={h}>
                         <g fill="none" className="svg-path">
                             {elements.map((el, i) => {
@@ -282,7 +289,9 @@ class SvgCreator extends BaseComponent {
 
                                 {/* selected element point */}
                                 <Points
-
+                                    ref={this.activePointRef}
+                                    movePoint={this.movePoint}
+                                    removePoint={this.removePoint}
                                     // onMouseDown={this.startDrag}
                                     // onMouseUp={this.stopDrag} 
                                     active pointColor={pointColor} activeIndex={this.state.selectedPointIndex} element={element} onClick={this.onPointClick} />
@@ -307,13 +316,13 @@ class SvgCreator extends BaseComponent {
                             : null}
                     </div>
                 </div>
-                <div className="col-md-3">
+                <div className="col-md-4">
                     <form className="container-fluid  " onSubmit={(e) => e.preventDefault()}>
                         <h4><i className="fas fa-palette" />&nbsp;Options</h4>
                         <FormGroup label="Type" children={element.id + " " + ElementType[element.type] + " [" + this.state.selectedIndex + "]"} />
                         <FormGroup label="Close Path">
                             <ToggleButton active={element.closePath} onClick={this.updateClosePath} /><br />
-                            <p>Press <span className={element.closePath ? "badge badge-success" : "badge badge-dark"}>Z</span> to toggle Close Path</p>
+                            <p><span className={element.closePath ? "badge badge-success" : "badge badge-dark"}>Z</span> to toggle Close Path</p>
                         </FormGroup>
                         <FormGroup label="Fill Color">
                             <div className="input-group">
@@ -343,8 +352,8 @@ class SvgCreator extends BaseComponent {
                             <i>&nbsp;&nbsp;{this.state.editMode == false ? "Select path to edit" : null}</i>
                         </FormGroup>
                         <FormGroup  >
-                            <p>Hold <span className="badge badge-dark">H</span> to make Straight Line</p>
-                            <p>Press <span className={this.state.editMode ? "badge badge-success" : "badge badge-dark"}>E</span> to toggle Edit Mode</p>
+                            <p><span className="badge badge-dark">H</span> to make Straight Line</p>
+                            <p><span className={this.state.editMode ? "badge badge-success" : "badge badge-dark"}>E</span> to toggle Edit Mode</p>
                             <AnchorWithIcon onClick={this.removeSelectedElement} iconClassName="fas fa-times"
                                 className="btn btn-danger btn-sm">Delete Path</AnchorWithIcon>
                         </FormGroup>
