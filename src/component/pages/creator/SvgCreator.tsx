@@ -24,7 +24,6 @@ class State {
     selectedIndex: number = 0;
     selectedPointIndex: number | undefined;
     editMode: boolean = true;
-    deleteMode: boolean = false;
     output?: string;
 
 }
@@ -58,6 +57,8 @@ class SvgCreator extends BaseComponent {
                     this.updateClosePath(!this.getSelectedElement().closePath);
                 } else if (keyEvent.key == 'e') {
                     this.setEditMode(!this.state.editMode);
+                } else if (keyEvent.key == 'd') {
+                    this.removePoint();
                 }
             }
         }
@@ -71,7 +72,7 @@ class SvgCreator extends BaseComponent {
 
         const element: SvgItem = this.getSelectedElement();
         element.addPointByEvent(e, target, this.straightLine);
-        this.setState({ selectedPointIndex: element.pointCount() - 1 , deleteMode:false}, () =>
+        this.setState({ selectedPointIndex: element.pointCount() - 1, }, () =>
             this.updateSelectedElement(element));
     }
     getSelectedElement = (): SvgItem => {
@@ -80,8 +81,7 @@ class SvgCreator extends BaseComponent {
     }
     setElementType = (e: ChangeEvent) => {
         if (this.state.editMode) { return; }
-        const target = e.target as HTMLSelectElement;
-        this.setState({ elementType: target.value });
+        this.setState({ elementType: (e.target as HTMLSelectElement).value });
     }
     addPointToCurrentElement = (p: SvgPoint) => {
         const element = this.getSelectedElement();
@@ -107,14 +107,17 @@ class SvgCreator extends BaseComponent {
             const element = this.getSelectedElement();
             element.points[this.state.selectedPointIndex] = p;
             this.updateSelectedElement(element);
-        } catch (e) {
-
-        }
+        } catch (e) { }
     }
     updateSelectedElement = (element: SvgItem) => {
         const elements = this.state.svgElements;
         elements[this.state.selectedIndex] = element;
-        this.setState({ svgElements: elements });
+        this.setState({ svgElements: elements }, this.setNullPointIndexLater);
+    }
+    setNullPointIndexLater = () => {
+        doItLater(() => {
+            this.setState({ selectedPointIndex: undefined });
+        }, 2000);
     }
     updateClosePath = (value: boolean) => {
         const element = this.getSelectedElement().setClosePath(value);
@@ -161,20 +164,10 @@ class SvgCreator extends BaseComponent {
     }
     onPointClick = (svgItemId: string, index: number) => {
         if (svgItemId == this.getSelectedElement().id) {
-            if (this.state.deleteMode && this.state.selectedPointIndex == index) {
-                this.removePoint(index);
-                this.setState({ deleteMode: false, selectedPointIndex: undefined });
-                return;
-            } else {
-                this.setState({ deleteMode: true, selectedPointIndex: index });
-            }
-            doItLater(() => {
-                this.setState({ deleteMode: false });
-            }, 2000);
+            this.setState({ selectedPointIndex: index }, this.setNullPointIndexLater);
             return;
         }
         this.addPointFromReferencePoint(svgItemId, index);
-
     }
     addPointFromReferencePoint = (id: string, index: number) => {
         const elements = this.state.svgElements;
@@ -187,30 +180,30 @@ class SvgCreator extends BaseComponent {
         }
         const element = this.getSelectedElement();
         element.addPoint(SvgPoint.newInstanceFromReference(refPoint));
-        this.setState({ selectedPointIndex: element.pointCount() - 1, deleteMode:false }, () =>
+        this.setState({ selectedPointIndex: element.pointCount() - 1, }, () =>
             this.updateSelectedElement(element));
     }
-    removePoint = (index: number) => {
-        console.debug("removePoint : ", index);
+    removePoint = () => {
         const element = this.getSelectedElement();
-        for (let i = 0; i < element.points.length; i++) {
-            if (i == index) {
-                element.points.splice(i, 1);
-                break;
+        try {
+            for (let i = 0; i < element.points.length; i++) {
+                if (i == this.state.selectedPointIndex) {
+                    element.points.splice(i, 1);
+                    break;
+                }
             }
+            this.updateSelectedElement(element);
+        } catch (e) {
+            console.error("Unable to remove point: ", e);
         }
-        this.updateSelectedElement(element);
     }
-    setEditMode = (val: boolean) => { this.setState({ editMode: val }); }
+    setEditMode = (val: boolean) => this.setState({ editMode: val })
     showOutput = () => {
         this.setState({ output: SvgItem.getOutput(this.state.svgElements, this.state.width, this.state.height) });
     }
-    setSelectedPoint = (index: number | undefined) => {
-        this.setState({ selectedPointIndex: index });
-    }
-    removeSelectedPoint = () => {
-        this.setSelectedPoint(undefined);
-    }
+    setSelectedPoint = (index: number | undefined) =>  this.setState({ selectedPointIndex: index })
+    removeSelectedPoint = () => this.setSelectedPoint(undefined)
+
     getSelectedPoint = (): SvgPoint | undefined => {
         const element: SvgItem = this.getSelectedElement();
         if (!element || this.state.selectedPointIndex == undefined) {
@@ -233,30 +226,28 @@ class SvgCreator extends BaseComponent {
                 <div className="col-md-7 svg-wrapper text-center" style={{ backgroundImage: 'url(' + this.props.imageData + ')', }}>
                     <svg className=" svg-sheet" width={w} height={h}>
                         <g fill="none" className="svg-path">
-                            {elements.map((element, i) => {
-                                const strokeWidth = element.strokeWidth, strokeColor = element.strokeColor;
-                                const fill = element.fillColor;
+                            {elements.map((el, i) => {
                                 const className = this.state.editMode == false ? "path-selectable" : "path-regular";
                                 // console.debug("element.type === ElementType.RECT: ",element.type, ElementType.RECT, (element.type == ElementType.RECT));
-                                const baseProps = { onClick: (e) => this.setActiveIndex(i), className: className, stroke: strokeColor, fill: fill, strokeWidth: strokeWidth }
-                                if (element.type == ElementType.RECT) {
-                                    const rect = element.getRectElement();
+                                const baseProps = { onClick: (e) => this.setActiveIndex(i), className: className, stroke: el.strokeColor, fill: el.fillColor, strokeWidth: el.strokeWidth }
+                                if (el.type == ElementType.RECT) {
+                                    const rect = el.getRectElement();
                                     return <rect  {...baseProps} key={"rect-" + i}
                                         x={rect.x} y={rect.y} width={rect.width} height={rect.height} />
                                 }
-                                if (element.type == ElementType.CIRCLE) {
-                                    const circle = element.getCircleElement();
+                                if (el.type == ElementType.CIRCLE) {
+                                    const circle = el.getCircleElement();
                                     return <circle {...baseProps} key={"circle-" + i} cx={circle.x} cy={circle.y} r={circle.r} />
                                 }
-                                if (element.type == ElementType.CURVE) {
-                                    const curve = element.getQuadCurveElement();
+                                if (el.type == ElementType.CURVE) {
+                                    const curve = el.getQuadCurveElement();
                                     return <path  {...baseProps} key={"curve-" + i} d={curve.getPath()} />
                                 }
-                                if (element.type == ElementType.ELLIPSE) {
-                                    const ellipse = element.getEllipseElement();
+                                if (el.type == ElementType.ELLIPSE) {
+                                    const ellipse = el.getEllipseElement();
                                     return <ellipse {...baseProps} key={"curve-" + i} cx={ellipse.x} cy={ellipse.y} rx={ellipse.rx} ry={ellipse.ry} />
                                 }
-                                const path = element.getPathElement();
+                                const path = el.getPathElement();
 
                                 return <path {...baseProps} key={"path-" + i} d={path.getPath()} />
                             })}
@@ -292,7 +283,7 @@ class SvgCreator extends BaseComponent {
                     </div>
                     <div className="container-fluid">
                         {selectedPoint ?
-                            <PointInfo deleteMode={this.state.deleteMode} point={selectedPoint} />
+                            <PointInfo onDelete={this.removePoint} point={selectedPoint} />
                             : null}
                     </div>
                 </div>

@@ -1,5 +1,6 @@
 import React from 'react'
 import SvgItem from '../../../models/elements/SvgItem';
+import AnchorWithIcon from '../../navigation/AnchorWithIcon';
 import Rect from './../../../models/elements/Rect';
 import SvgPoint from './../../../models/elements/SvgPoint';
 export const WorksheetRect = (props: { size: number, addPoint(e: React.MouseEvent<SVGRectElement>): void }) => {
@@ -22,15 +23,19 @@ export const BoundingRect = (props: { rect: Rect }) => {
     )
 }
 
-export const PointInfo = (props: { point: SvgPoint, deleteMode: boolean }) => {
+export const PointInfo = (props: { onDelete(): any, point: SvgPoint  }) => {
     const p: SvgPoint = props.point;
     return (
-        <ul className="list-group" style={{marginTop: '5px'}}>
+        <ul className="list-group" style={{ marginTop: '5px' }}>
             <li className="list-group-item bg-info text-light">Point Info</li>
             <li className="list-group-item">x:{p.x} y:{p.y}</li>
-            {props.deleteMode ?
-                <li className="list-group-item text-danger">Click one more to delete</li> : null
-            }
+
+            <li className="list-group-item ">
+                <AnchorWithIcon iconClassName="fas fa-times" className="btn btn-danger" 
+                        onClick={props.onDelete} children="Press D"
+                />
+            </li>
+
         </ul>
     )
 }
