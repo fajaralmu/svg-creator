@@ -228,7 +228,7 @@ class SvgCreator extends BaseComponent {
 
     getSelectedPoint = (): SvgPoint | undefined => {
         const element: SvgItem = this.getSelectedElement();
-        if (!element || this.state.selectedPointIndex == undefined) {
+        if (!element || this.state.selectedPointIndex === undefined) {
             return undefined;
         }
         return element.getPointByIndex(this.state.selectedPointIndex);
@@ -282,13 +282,14 @@ class SvgCreator extends BaseComponent {
                                 {elements.map((el, i) => {
                                     if (i == this.state.selectedIndex) return null
                                     return (
-                                        <Points key={"pts-" + i} active={false} pointColor={pointColor} element={el} onClick={this.onPointClick} />
+                                        <Points svgHeight={h} svgWidth={w} key={"pts-" + i} active={false} pointColor={pointColor} element={el} onClick={this.onPointClick} />
                                     )
                                 })}
                                 {/* bounding rect */}
 
                                 {/* selected element point */}
                                 <Points
+                                    svgHeight={h} svgWidth={w}
                                     ref={this.activePointRef}
                                     movePoint={this.movePoint}
                                     removePoint={this.removePoint}

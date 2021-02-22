@@ -7,7 +7,8 @@ interface Props {
     onClick(elementId: string, index: number): any,
     element: SvgItem,
     removePoint?(index: number): any,
-    movePoint?(index: number): any
+    movePoint?(index: number): any,
+    svgWidth: number, svgHeight: number
 }
 class State {
     selectedIndex?: number;
@@ -35,12 +36,12 @@ export default class Points extends Component<Props, State> {
         this.setState({ contextMenu: false });
     }
     removePoint = () => {
-        if (this.state.selectedIndex && this.props.removePoint)
+        if (undefined !== this.state.selectedIndex && this.props.removePoint)
             this.props.removePoint(this.state.selectedIndex);
         this.closeContextMenu();
     }
     movePoint = () => {
-        if (this.state.selectedIndex && this.props.movePoint)
+        if (undefined !== this.state.selectedIndex && this.props.movePoint)
             this.props.movePoint(this.state.selectedIndex);
         this.closeContextMenu();
     }
@@ -70,6 +71,8 @@ export default class Points extends Component<Props, State> {
                         movePoint={this.movePoint}
                         removePoint={this.removePoint}
                         closeMenu={this.closeContextMenu}
+                        svgWidth={props.svgWidth}
+                        svgHeight={props.svgHeight}
                     />
                     : null
                 }
@@ -77,23 +80,42 @@ export default class Points extends Component<Props, State> {
         )
     }
 }
-
-const ContextMenu = (props: {
+interface ContextMenuProps {
     point: SvgPoint, closeMenu(): any
     movePoint(): any, removePoint(): any,
-}) => {
-    const selectedPoint = props.point;
-    return (
-        <g>
-            <rect stroke="#ccc" x={selectedPoint.x - 25} y={selectedPoint.y} width={70} height={100} fill="#fff" />
+    svgWidth:number, svgHeight:number
+}
+class ContextMenu extends Component<ContextMenuProps, any> {
+    menuHeight = 75;
+    menuWidth = 70;
+    calculatePosY = ():number => {
+        const p = this.props.point;
+        if (this.exceedMaxHeight()) {
+            return p.y - this.menuHeight;
+        }
+        return p.y;
+    }
+    exceedMaxHeight = () => {
+        return this.props.point.y + this.menuHeight > this.props.svgHeight;
+    }
+    render = () => {
+        const props = this.props;
+        const p = props.point;
+        const x = p.x - 25;
+        const y = this.calculatePosY();
+        
+        return (
+            <g>
+                <rect stroke="#ccc" x={x} y={y} width={this.menuWidth} height={this.menuHeight} fill="#fff" />
 
-            <foreignObject x={selectedPoint.x - 25} y={selectedPoint.y - 5} width={70} height={100}>
-                <a className="text-dark" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.movePoint} >Move</a>
-                <br />
-                <a className="text-dark" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.closeMenu} >Close</a>
-                <br />
-                <a className="text-danger" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.removePoint} >Remove</a>
-            </foreignObject>
-        </g>
-    )
+                <foreignObject x={x} y={y-5} width={this.menuWidth} height={this.menuHeight}>
+                    <a className="text-dark" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.movePoint} >Move</a>
+                    <br />
+                    <a className="text-dark" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.closeMenu} >Close</a>
+                    <br />
+                    <a className="text-danger" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.removePoint} >Remove</a>
+                </foreignObject>
+            </g>
+        )
+    }
 }
