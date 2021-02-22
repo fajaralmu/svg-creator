@@ -71,7 +71,7 @@ class SvgCreator extends BaseComponent {
 
         const element: SvgItem = this.getSelectedElement();
         element.addPointByEvent(e, target, this.straightLine);
-        this.setState({ selectedPointIndex: element.pointCount() - 1 }, () =>
+        this.setState({ selectedPointIndex: element.pointCount() - 1 , deleteMode:false}, () =>
             this.updateSelectedElement(element));
     }
     getSelectedElement = (): SvgItem => {
@@ -100,6 +100,16 @@ class SvgCreator extends BaseComponent {
         const element = this.getSelectedElement();
         element[name] = val;
         this.updateSelectedElement(element);
+    }
+    updateSelectedPoint = (p: SvgPoint) => {
+        if (!this.state.selectedPointIndex) return;
+        try {
+            const element = this.getSelectedElement();
+            element.points[this.state.selectedPointIndex] = p;
+            this.updateSelectedElement(element);
+        } catch (e) {
+
+        }
     }
     updateSelectedElement = (element: SvgItem) => {
         const elements = this.state.svgElements;
@@ -177,7 +187,7 @@ class SvgCreator extends BaseComponent {
         }
         const element = this.getSelectedElement();
         element.addPoint(SvgPoint.newInstanceFromReference(refPoint));
-        this.setState({ selectedPointIndex: element.pointCount() - 1 }, () =>
+        this.setState({ selectedPointIndex: element.pointCount() - 1, deleteMode:false }, () =>
             this.updateSelectedElement(element));
     }
     removePoint = (index: number) => {
@@ -269,7 +279,7 @@ class SvgCreator extends BaseComponent {
                         }
                     </svg>
                 </div>
-                <div className="col-md-1">
+                <div className="col-md-2 text-center">
                     <div className=" btn-group-vertical">
                         <span className="btn btn-dark">Items:  {elements.length}
                         </span>
@@ -278,12 +288,15 @@ class SvgCreator extends BaseComponent {
                         <AnchorWithIcon onClick={(e) => { this.addSvgElement(ElementType.RECT) }} iconClassName="far fa-square" />
                         <AnchorWithSvg onClick={(e) => { this.addSvgElement(ElementType.CURVE) }} icon="curve" />
                         <AnchorWithSvg onClick={(e) => { this.addSvgElement(ElementType.ELLIPSE) }} icon="ellips" />
+
+                    </div>
+                    <div className="container-fluid">
                         {selectedPoint ?
-                            <PointInfo point={selectedPoint} />
+                            <PointInfo deleteMode={this.state.deleteMode} point={selectedPoint} />
                             : null}
                     </div>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-3">
                     <form className="container-fluid  " onSubmit={(e) => e.preventDefault()}>
                         <h4><i className="fas fa-palette" />&nbsp;Options</h4>
                         <FormGroup label="Type" children={element.id + " " + ElementType[element.type] + " [" + this.state.selectedIndex + "]"} />
