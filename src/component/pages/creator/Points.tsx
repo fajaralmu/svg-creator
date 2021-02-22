@@ -6,8 +6,8 @@ interface Props {
     active: boolean, activeIndex?: number, pointColor: string,
     onClick(elementId: string, index: number): any,
     element: SvgItem,
-    removePoint?(index:number): any,
-    movePoint?(index:number): any
+    removePoint?(index: number): any,
+    movePoint?(index: number): any
 }
 class State {
     selectedIndex?: number;
@@ -32,14 +32,14 @@ export default class Points extends Component<Props, State> {
         }
     }
     closeContextMenu = () => {
-        this.setState({contextMenu: false});
+        this.setState({ contextMenu: false });
     }
-    removePoint = ( ) => {
+    removePoint = () => {
         if (this.state.selectedIndex && this.props.removePoint)
             this.props.removePoint(this.state.selectedIndex);
         this.closeContextMenu();
     }
-    movePoint = ( ) => {
+    movePoint = () => {
         if (this.state.selectedIndex && this.props.movePoint)
             this.props.movePoint(this.state.selectedIndex);
         this.closeContextMenu();
@@ -66,20 +66,34 @@ export default class Points extends Component<Props, State> {
                 })
                 }
                 {props.active && contextMenu && selectedPoint ?
-                    <g>
-                        <rect stroke="#ccc" x={selectedPoint.x - 25} y={selectedPoint.y} width={70} height={100} fill="#fff" />
-
-                        <foreignObject x={selectedPoint.x - 25 } y={selectedPoint.y - 5 } width={70} height={100}>
-                            <a className="text-dark" style={{ padding:1, margin: 0,  cursor:'pointer', fontSize: 9 }} onClick={this.movePoint} >Move</a>
-                            <br/>
-                            <a className="text-dark" style={{ padding:1, margin: 0,  cursor:'pointer', fontSize: 9 }} onClick={this.closeContextMenu} >Close</a>
-                            <br/>
-                            <a className="text-danger"style={{ padding:1, margin: 0,  cursor:'pointer', fontSize: 9 }} onClick={this.removePoint} >Remove</a>
-                        </foreignObject>
-                    </g>
+                    <ContextMenu point={selectedPoint}
+                        movePoint={this.movePoint}
+                        removePoint={this.removePoint}
+                        closeMenu={this.closeContextMenu}
+                    />
                     : null
                 }
             </g>
         )
     }
+}
+
+const ContextMenu = (props: {
+    point: SvgPoint, closeMenu(): any
+    movePoint(): any, removePoint(): any,
+}) => {
+    const selectedPoint = props.point;
+    return (
+        <g>
+            <rect stroke="#ccc" x={selectedPoint.x - 25} y={selectedPoint.y} width={70} height={100} fill="#fff" />
+
+            <foreignObject x={selectedPoint.x - 25} y={selectedPoint.y - 5} width={70} height={100}>
+                <a className="text-dark" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.movePoint} >Move</a>
+                <br />
+                <a className="text-dark" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.closeMenu} >Close</a>
+                <br />
+                <a className="text-danger" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.removePoint} >Remove</a>
+            </foreignObject>
+        </g>
+    )
 }
