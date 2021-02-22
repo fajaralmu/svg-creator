@@ -1,13 +1,17 @@
 import React from 'react'
-import SvgItem from '../../../models/elements/SvgItem';
 import AnchorWithIcon from '../../navigation/AnchorWithIcon';
 import Rect from './../../../models/elements/Rect';
 import SvgPoint from './../../../models/elements/SvgPoint';
-export const WorksheetRect = (props: { size: number, addPoint(e: React.MouseEvent<SVGRectElement>): void }) => {
+export const WorksheetRect = (props: {
+    size: number,
+    onMouseMove(e: React.MouseEvent<SVGRectElement>): any,
+    addPoint(e: React.MouseEvent<SVGRectElement>): void
+}) => {
     const size = props.size;
     return (
         <rect
             focusable="true" id="svg-screen"
+            onMouseMove={props.onMouseMove}
             onClick={props.addPoint}
             //  onMouseDown={this.onMouseDown} onMouseUp={this.onMouseUp}onMouseMove={this.onMouseMove}
             fill="transparent" x={0} y={0} width={size} height={size} />
@@ -23,7 +27,7 @@ export const BoundingRect = (props: { rect: Rect }) => {
     )
 }
 
-export const PointInfo = (props: { onDelete(): any, point: SvgPoint  }) => {
+export const PointInfo = (props: { onDelete(): any, point: SvgPoint, dragMode:boolean }) => {
     const p: SvgPoint = props.point;
     return (
         <ul className="list-group" style={{ marginTop: '5px' }}>
@@ -31,9 +35,13 @@ export const PointInfo = (props: { onDelete(): any, point: SvgPoint  }) => {
             <li className="list-group-item">x:{p.x} y:{p.y}</li>
 
             <li className="list-group-item ">
-                <AnchorWithIcon iconClassName="fas fa-times" className="btn btn-danger" 
-                        onClick={props.onDelete} children="Press D"
+                <AnchorWithIcon iconClassName="fas fa-times" className="btn btn-danger"
+                    onClick={props.onDelete} children="Press D"
                 />
+            </li>
+            <li className="list-group-item">
+                Press <span className={props.dragMode?
+                "badge badge-success":"badge badge-dark"}>M</span> to toggle dragging
             </li>
 
         </ul>

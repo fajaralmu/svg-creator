@@ -1,8 +1,13 @@
 
 import React, { Component } from 'react';
-import SvgItem from '../../../models/elements/SvgItem'; 
+import SvgItem from '../../../models/elements/SvgItem';
 interface Props {
-    active: boolean, activeIndex?: number, pointColor: string, onClick(elementId: string, index: number): any, element: SvgItem
+    active: boolean, activeIndex?: number, pointColor: string,
+    onClick(elementId: string, index: number): any,
+    onMouseDown?(e: React.MouseEvent<SVGCircleElement>, index: number): any,
+    onMouseUp?(e: React.MouseEvent<SVGCircleElement>): any,
+    
+    element: SvgItem
 }
 export default class Points extends Component<Props, any> {
 
@@ -16,13 +21,14 @@ export default class Points extends Component<Props, any> {
                     const strokeColor = activeIndex ? 'rgb(100,255,100)' : props.active ? 'rgb(0,0,0)' : '#fff';
                     const strokeWidth = i == 0 ? 3 : 1;
                     return (
-                        <g stroke={strokeColor} key={"point-" + p.id}><circle
-                            // onMouseOut={(e)=>{ props.onMouseOut(p) }}
-                            // onMouseOver={(e)=>{  props.onMouseOver(p) }}
-                            strokeWidth={strokeWidth} className="svg-point" onClick={(e) => {
-                                e.preventDefault();
-                                props.onClick(props.element.id, i);
-                            }} cx={p.x} cy={p.y} r={3} />
+                        <g stroke={strokeColor} key={"point-" + p.id}>
+                            <circle
+                                 onMouseDown={(e) => { if (props.onMouseDown) props.onMouseDown(e, i) }}
+                                onMouseUp={(e) => { if (props.onMouseUp) props.onMouseUp(e) }}
+                                strokeWidth={strokeWidth} className="svg-point" onClick={(e) => {
+                                    e.preventDefault();
+                                    props.onClick(props.element.id, i);
+                                }} cx={p.x} cy={p.y} r={3} />
                         </g>
                     )
                 })

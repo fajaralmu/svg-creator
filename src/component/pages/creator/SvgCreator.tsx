@@ -25,7 +25,7 @@ class State {
     selectedPointIndex: number | undefined;
     editMode: boolean = true;
     output?: string;
-
+    dragMode: boolean = false;
 }
 class SvgCreator extends BaseComponent {
     state: State = new State();
@@ -59,9 +59,20 @@ class SvgCreator extends BaseComponent {
                     this.setEditMode(!this.state.editMode);
                 } else if (keyEvent.key == 'd') {
                     this.removePoint();
+
+                } else if (keyEvent.key == 'm') {
+                    this.setState({ dragMode: !this.state.dragMode });
                 }
             }
         }
+    dragPoint = (e: React.MouseEvent<SVGRectElement>) => {
+        if (!this.state.dragMode) return;
+        const p = this.getSelectedPoint();
+        if (!p) return;
+        p.updatePosition(e);
+        this.updateSelectedPoint(p);
+    }
+
     addPoint = (e: React.MouseEvent<SVGRectElement>): void => {
         const target = e.target as SVGRectElement;
         if (!target) return;
@@ -71,7 +82,7 @@ class SvgCreator extends BaseComponent {
         }
 
         const element: SvgItem = this.getSelectedElement();
-        element.addPointByEvent(e, target, this.straightLine);
+        element.addPointByEvent(e, this.straightLine);
         this.setState({ selectedPointIndex: element.pointCount() - 1, }, () =>
             this.updateSelectedElement(element));
     }
@@ -115,9 +126,9 @@ class SvgCreator extends BaseComponent {
         this.setState({ svgElements: elements }, this.setNullPointIndexLater);
     }
     setNullPointIndexLater = () => {
-        doItLater(() => {
-            this.setState({ selectedPointIndex: undefined });
-        }, 2000);
+        // doItLater(() => {
+        //     this.setState({ selectedPointIndex: undefined });
+        // }, 2000);
     }
     updateClosePath = (value: boolean) => {
         const element = this.getSelectedElement().setClosePath(value);
@@ -163,11 +174,15 @@ class SvgCreator extends BaseComponent {
         return true;
     }
     onPointClick = (svgItemId: string, index: number) => {
-        if (svgItemId == this.getSelectedElement().id) {
-            this.setState({ selectedPointIndex: index }, this.setNullPointIndexLater);
-            return;
-        }
-        this.addPointFromReferencePoint(svgItemId, index);
+        this.setState({ dragMode: false }, () => {
+            console.debug("on Point click");
+            if (svgItemId == this.getSelectedElement().id) {
+                this.setState({ selectedPointIndex: index }, this.setNullPointIndexLater);
+                return;
+            }
+            this.addPointFromReferencePoint(svgItemId, index);
+             
+        });
     }
     addPointFromReferencePoint = (id: string, index: number) => {
         const elements = this.state.svgElements;
@@ -201,7 +216,7 @@ class SvgCreator extends BaseComponent {
     showOutput = () => {
         this.setState({ output: SvgItem.getOutput(this.state.svgElements, this.state.width, this.state.height) });
     }
-    setSelectedPoint = (index: number | undefined) =>  this.setState({ selectedPointIndex: index })
+    setSelectedPoint = (index: number | undefined) => this.setState({ selectedPointIndex: index })
     removeSelectedPoint = () => this.setSelectedPoint(undefined)
 
     getSelectedPoint = (): SvgPoint | undefined => {
@@ -255,7 +270,8 @@ class SvgCreator extends BaseComponent {
                         <BoundingRect rect={boundingRect} />
                         {editMode ?
                             <g>
-                                <WorksheetRect size={w} addPoint={this.addPoint} />
+                                <WorksheetRect onMouseMove={this.dragPoint}
+                                    size={w} addPoint={this.addPoint} />
                                 {elements.map((el, i) => {
                                     if (i == this.state.selectedIndex) return null
                                     return (
@@ -265,7 +281,11 @@ class SvgCreator extends BaseComponent {
                                 {/* bounding rect */}
 
                                 {/* selected element point */}
-                                <Points active pointColor={pointColor} activeIndex={this.state.selectedPointIndex} element={element} onClick={this.onPointClick} />
+                                <Points
+
+                                    // onMouseDown={this.startDrag}
+                                    // onMouseUp={this.stopDrag} 
+                                    active pointColor={pointColor} activeIndex={this.state.selectedPointIndex} element={element} onClick={this.onPointClick} />
                             </g> : null
                         }
                     </svg>
@@ -283,7 +303,7 @@ class SvgCreator extends BaseComponent {
                     </div>
                     <div className="container-fluid">
                         {selectedPoint ?
-                            <PointInfo onDelete={this.removePoint} point={selectedPoint} />
+                            <PointInfo dragMode={this.state.dragMode} onDelete={this.removePoint} point={selectedPoint} />
                             : null}
                     </div>
                 </div>

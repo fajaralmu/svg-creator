@@ -50,23 +50,24 @@ export default
         return this.points.length;
     }
 
-    public addPointByEvent = (e: React.MouseEvent<SVGRectElement>, target: SVGRectElement, straightLine: boolean) => {
+    public addPointByEvent = (e: React.MouseEvent<SVGRectElement>, straightLine: boolean) => {
         let point: SvgPoint;
+       
         if ((this.type == ElementType.RECT || this.type == ElementType.CIRCLE) && this.pointCount()  >= 1) {
-            this.points[1] = SvgPoint.newInstanceFromEvent(e, target);
+            this.points[1] = SvgPoint.newInstanceFromEvent(e);
             return;
         }
         if ((this.type == ElementType.ELLIPSE) && this.pointCount()  >= 2) {
-            this.points[2] = SvgPoint.newInstanceFromEvent(e, target);
+            this.points[2] = SvgPoint.newInstanceFromEvent(e);
             return;
         }
 
 
         if (straightLine && this.pointCount()  > 0) {
             const prevPoint = this.points[this.pointCount()  - 1];
-            point = SvgPoint.newStraightLineInstance(e, target, prevPoint);
+            point = SvgPoint.newStraightLineInstance(e, prevPoint);
         } else {
-            point = SvgPoint.newInstanceFromEvent(e, target);
+            point = SvgPoint.newInstanceFromEvent(e);
         }
         this.points.push(point);
     }
