@@ -17,6 +17,7 @@ export default
     type: ElementType = ElementType.PATH;
     id: string = uniqueId();
 
+   
     public setClosePath = (val: boolean): SvgItem => {
         this.closePath = val;
         return this;

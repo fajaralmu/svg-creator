@@ -11,24 +11,27 @@ import SvgItem from '../../../models/elements/SvgItem';
 import SvgPoint from '../../../models/elements/SvgPoint';
 import GeneralForm from './SettingForm';
 import { withRouter } from 'react-router-dom';
-import { BoundingRect, WorksheetRect } from './creatorHelper';
+import { BoundingRect, PointInfo, WorksheetRect } from './creatorHelper';
 import { ElementType } from '../../../constant/ElementType';
 import AnchorWithSvg from './../../navigation/AnchorWithSvg';
 import Points from './Points';
+import { doItLater } from './../../../utils/EventUtil';
 
 class State {
     svgElements: SvgItem[] = [new SvgItem()];
     pointColor: string = "#cccccc";
-    width: number = 400;
-    height: number = 400;
+    width: number = 400; height: number = 400;
     selectedIndex: number = 0;
+    selectedPointIndex: number | undefined;
     editMode: boolean = true;
+    deleteMode: boolean = false;
     output?: string;
-    selectedPoint: SvgPoint | undefined;
+
 }
 class SvgCreator extends BaseComponent {
     state: State = new State();
     straightLine: boolean = false;
+    // deleteMode: boolean = false;
     constructor(props) {
         super(props, false);
         this.initKeyListener();
@@ -48,6 +51,7 @@ class SvgCreator extends BaseComponent {
         event => {
             if (event instanceof KeyboardEvent) {
                 const keyEvent: KeyboardEvent = event as KeyboardEvent;
+                console.debug("KEY CODE: ", keyEvent.key);
                 if (keyEvent.key == 'h') {
                     this.straightLine = true;
                 } else if (keyEvent.key == 'z') {
@@ -67,7 +71,8 @@ class SvgCreator extends BaseComponent {
 
         const element: SvgItem = this.getSelectedElement();
         element.addPointByEvent(e, target, this.straightLine);
-        this.updateSelectedElement(element);
+        this.setState({ selectedPointIndex: element.pointCount() - 1 }, () =>
+            this.updateSelectedElement(element));
     }
     getSelectedElement = (): SvgItem => {
         const elements = this.state.svgElements;
@@ -144,12 +149,21 @@ class SvgCreator extends BaseComponent {
         this.setState({ svgElements: elements, selectedIndex: elements.length - 1 });
         return true;
     }
-    onPointClick = (id: string, index: number) => {
-        if (id == this.getSelectedElement().id) {
-            this.removePoint(index);
+    onPointClick = (svgItemId: string, index: number) => {
+        if (svgItemId == this.getSelectedElement().id) {
+            if (this.state.deleteMode && this.state.selectedPointIndex == index) {
+                this.removePoint(index);
+                this.setState({ deleteMode: false, selectedPointIndex: undefined });
+                return;
+            } else {
+                this.setState({ deleteMode: true, selectedPointIndex: index });
+            }
+            doItLater(() => {
+                this.setState({ deleteMode: false });
+            }, 2000);
             return;
         }
-        this.addPointFromReferencePoint(id, index);
+        this.addPointFromReferencePoint(svgItemId, index);
 
     }
     addPointFromReferencePoint = (id: string, index: number) => {
@@ -163,7 +177,8 @@ class SvgCreator extends BaseComponent {
         }
         const element = this.getSelectedElement();
         element.addPoint(SvgPoint.newInstanceFromReference(refPoint));
-        this.updateSelectedElement(element);
+        this.setState({ selectedPointIndex: element.pointCount() - 1 }, () =>
+            this.updateSelectedElement(element));
     }
     removePoint = (index: number) => {
         console.debug("removePoint : ", index);
@@ -180,11 +195,19 @@ class SvgCreator extends BaseComponent {
     showOutput = () => {
         this.setState({ output: SvgItem.getOutput(this.state.svgElements, this.state.width, this.state.height) });
     }
-    setSelectedPoint = (p?: SvgPoint) => {
-        this.setState({ selectedPoint: p });
+    setSelectedPoint = (index: number | undefined) => {
+        this.setState({ selectedPointIndex: index });
     }
-    removeSelectedPoint = (p: SvgPoint) => {
+    removeSelectedPoint = () => {
         this.setSelectedPoint(undefined);
+    }
+    getSelectedPoint = (): SvgPoint | undefined => {
+        const element: SvgItem = this.getSelectedElement();
+        if (!element || this.state.selectedPointIndex == undefined) {
+            return undefined;
+        }
+        return element.getPointByIndex(this.state.selectedPointIndex);
+
     }
     render = () => {
         const elements: SvgItem[] = this.state.svgElements;
@@ -193,7 +216,7 @@ class SvgCreator extends BaseComponent {
         const w = this.state.width, h = this.state.height;
         const editMode = this.state.editMode;
         const boundingRect = element.getBoundingRect();
-        const selectedPoint: SvgPoint | undefined = this.state.selectedPoint;
+        const selectedPoint: SvgPoint | undefined = this.getSelectedPoint();
 
         return <Modal title="Draw Your Svg Path">
             <div className="row">
@@ -235,13 +258,13 @@ class SvgCreator extends BaseComponent {
                                 {elements.map((el, i) => {
                                     if (i == this.state.selectedIndex) return null
                                     return (
-                                        <Points onMouseOver={this.setSelectedPoint} onMouseOut={this.removeSelectedPoint} key={"pts-" + i} active={false} pointColor={pointColor} element={el} onClick={this.onPointClick} />
+                                        <Points key={"pts-" + i} active={false} pointColor={pointColor} element={el} onClick={this.onPointClick} />
                                     )
                                 })}
                                 {/* bounding rect */}
 
                                 {/* selected element point */}
-                                <Points onMouseOver={this.setSelectedPoint} onMouseOut={this.removeSelectedPoint} active pointColor={pointColor} element={element} onClick={this.onPointClick} />
+                                <Points active pointColor={pointColor} activeIndex={this.state.selectedPointIndex} element={element} onClick={this.onPointClick} />
                             </g> : null
                         }
                     </svg>
@@ -256,7 +279,7 @@ class SvgCreator extends BaseComponent {
                         <AnchorWithSvg onClick={(e) => { this.addSvgElement(ElementType.CURVE) }} icon="curve" />
                         <AnchorWithSvg onClick={(e) => { this.addSvgElement(ElementType.ELLIPSE) }} icon="ellips" />
                         {selectedPoint ?
-                            <i>x:{selectedPoint.x} y:{selectedPoint.y}</i>
+                            <PointInfo point={selectedPoint} />
                             : null}
                     </div>
                 </div>
@@ -277,9 +300,9 @@ class SvgCreator extends BaseComponent {
                                 </div>
                             </div>
                         </FormGroup>
-                        <FormGroup label="Stroke Color"> 
+                        <FormGroup label="Stroke Color">
                             <input type="color" className="form-control" name="strokeColor" value={element.strokeColor}
-                                onChange={this.updateSelectedElementProp} /> 
+                                onChange={this.updateSelectedElementProp} />
                         </FormGroup>
                         <FormGroup label="Stroke Width">
                             <input type="number" className="form-control" name="strokeWidth" value={element.strokeWidth}
