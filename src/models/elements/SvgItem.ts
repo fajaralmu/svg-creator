@@ -17,7 +17,27 @@ export default
     type: ElementType = ElementType.PATH;
     id: string = uniqueId();
 
-   
+    insertAfter = (index: number): boolean => {
+        console.debug("Insert After: ", index);
+        if (this.pointCount() <= index) return false;
+        const ref = this.getPointByIndex(index);
+        if (!ref) return false;
+        if (this.pointCount() == index - 1) {
+            this.addPoint(SvgPoint.newInstanceFromReference(ref));
+            return true;
+        }
+        this.points.splice(index + 1, 0, SvgPoint.newInstanceFromReference(ref));
+        return true;
+    }
+    insertBefore = (index: number): boolean => {
+        console.debug("insertBefore: ", index);
+        if (0 == this.pointCount()) return false;
+        const ref = this.getPointByIndex(index);
+        if (!ref) return false;
+        this.points.splice(index, 0, SvgPoint.newInstanceFromReference(ref));
+        return true;
+    }
+
     public setClosePath = (val: boolean): SvgItem => {
         this.closePath = val;
         return this;
@@ -34,7 +54,7 @@ export default
     }
 
     public addPoint = (p: SvgPoint) => {
-        if ((this.type == ElementType.RECT || this.type == ElementType.CIRCLE) && this.pointCount()  >= 1) {
+        if ((this.type == ElementType.RECT || this.type == ElementType.CIRCLE) && this.pointCount() >= 1) {
             this.points[1] = p;
             return;
         }
@@ -52,19 +72,19 @@ export default
 
     public addPointByEvent = (e: React.MouseEvent<SVGRectElement>, straightLine: boolean) => {
         let point: SvgPoint;
-       
-        if ((this.type == ElementType.RECT || this.type == ElementType.CIRCLE) && this.pointCount()  >= 1) {
+
+        if ((this.type == ElementType.RECT || this.type == ElementType.CIRCLE) && this.pointCount() >= 1) {
             this.points[1] = SvgPoint.newInstanceFromEvent(e);
             return;
         }
-        if ((this.type == ElementType.ELLIPSE) && this.pointCount()  >= 2) {
+        if ((this.type == ElementType.ELLIPSE) && this.pointCount() >= 2) {
             this.points[2] = SvgPoint.newInstanceFromEvent(e);
             return;
         }
 
 
-        if (straightLine && this.pointCount()  > 0) {
-            const prevPoint = this.points[this.pointCount()  - 1];
+        if (straightLine && this.pointCount() > 0) {
+            const prevPoint = this.points[this.pointCount() - 1];
             point = SvgPoint.newStraightLineInstance(e, prevPoint);
         } else {
             point = SvgPoint.newInstanceFromEvent(e);
@@ -73,7 +93,7 @@ export default
     }
 
     public getCircleElement = (): Circle => {
-        if (this.type != ElementType.CIRCLE || this.pointCount()  < 2) {
+        if (this.type != ElementType.CIRCLE || this.pointCount() < 2) {
             return new Circle();
         }
         this.adjustPoints1And2();
@@ -83,14 +103,14 @@ export default
     }
 
     public getQuadCurveElement = (): QuadraticCurve => {
-        if (this.type != ElementType.CURVE || this.pointCount()  < 3) {
+        if (this.type != ElementType.CURVE || this.pointCount() < 3) {
             return new QuadraticCurve();
         }
         return QuadraticCurve.newInstance(this, ...this.points);
 
     }
     public getEllipseElement = (): Ellipse => {
-        if (this.type != ElementType.ELLIPSE || this.pointCount()  < 3) {
+        if (this.type != ElementType.ELLIPSE || this.pointCount() < 3) {
             return new Ellipse();
         }
         let point1 = this.points[0];
@@ -101,7 +121,7 @@ export default
     }
 
     public getRectElement = (): Rect => {
-        if (this.type != ElementType.RECT || this.pointCount()  < 2) {
+        if (this.type != ElementType.RECT || this.pointCount() < 2) {
             return new Rect();
         }
         this.adjustPoints1And2();
@@ -149,7 +169,7 @@ export default
         const el = this.getElement();
         return el.html();
     }
-    getBoundingRect = ():Rect => {
+    getBoundingRect = (): Rect => {
         const xMax = this.getMaxAxis('x');
         const yMax = this.getMaxAxis('y');
         const xMin = this.getMinAxis('x', xMax);
@@ -158,7 +178,7 @@ export default
     }
     getMaxAxis = (axis: string): number => {
         let value = 0;
-        for (let i = 0; i < this.pointCount() ; i++) {
+        for (let i = 0; i < this.pointCount(); i++) {
             const p = this.points[i];
             if (p[axis] > value) { value = p[axis] }
         }
@@ -166,7 +186,7 @@ export default
     }
     getMinAxis = (axis: string, max: number): number => {
         let value = max;
-        for (let i = 0; i < this.pointCount() ; i++) {
+        for (let i = 0; i < this.pointCount(); i++) {
             const p = this.points[i];
             if (p[axis] < value) { value = p[axis] }
         }
@@ -178,7 +198,7 @@ export default
         return res;
     }
 
-    public static getOutput = (items: SvgItem[], w: number, h  : number): string => {
+    public static getOutput = (items: SvgItem[], w: number, h: number): string => {
         let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="` + w + `" height="` + h + `"><g stroke="black" fill="transparent" stroke-width="2">
         {SVG}</g></svg>`;
         let paths = "";

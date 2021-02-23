@@ -8,6 +8,8 @@ interface Props {
     element: SvgItem,
     removePoint?(index: number): any,
     movePoint?(index: number): any,
+    insertAfter?(index: number): any,
+    insertBefore?(index: number): any,
     svgWidth: number, svgHeight: number
 }
 class State {
@@ -45,6 +47,16 @@ export default class Points extends Component<Props, State> {
             this.props.movePoint(this.state.selectedIndex);
         this.closeContextMenu();
     }
+    insertBefore = () => {
+        if (undefined !== this.state.selectedIndex && this.props.insertBefore)
+            this.props.insertBefore(this.state.selectedIndex);
+        this.closeContextMenu();
+    }
+    insertAfter = () => {
+        if (undefined !== this.state.selectedIndex && this.props.insertAfter)
+            this.props.insertAfter(this.state.selectedIndex);
+        this.closeContextMenu();
+    }
     render() {
         const props = this.props;
         const contextMenu = this.state.contextMenu;
@@ -68,6 +80,8 @@ export default class Points extends Component<Props, State> {
                 }
                 {props.active && contextMenu && selectedPoint ?
                     <ContextMenu point={selectedPoint}
+                        insertAfter={this.insertAfter}
+                        insertBefore={this.insertBefore}
                         movePoint={this.movePoint}
                         removePoint={this.removePoint}
                         closeMenu={this.closeContextMenu}
@@ -81,12 +95,13 @@ export default class Points extends Component<Props, State> {
     }
 }
 interface ContextMenuProps {
-    point: SvgPoint, closeMenu(): any
+    point: SvgPoint, closeMenu(): any,
+    insertBefore(): any, insertAfter(): any,
     movePoint(): any, removePoint(): any,
     svgWidth: number, svgHeight: number
 }
 class ContextMenu extends Component<ContextMenuProps, any> {
-    menuHeight = 75;
+    menuHeight = 120;
     menuWidth = 55;
     calculatePosY = (): number => {
         const p = this.props.point;
@@ -103,17 +118,21 @@ class ContextMenu extends Component<ContextMenuProps, any> {
         const p = props.point;
         const x = p.x - 25;
         const y = this.calculatePosY();
-
+        const style = { padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }
         return (
             <g>
                 <rect rx={5} ry={5} stroke="#343a40" x={x} y={y} width={this.menuWidth} height={this.menuHeight} fill="#fff" />
 
                 <foreignObject x={x} y={y - 5} width={this.menuWidth} height={this.menuHeight}>
-                    <a className="text-info" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.movePoint} >Move</a>
+                    <a className="text-info" style={style} onClick={props.movePoint} >Move</a>
                     <br />
-                    <a className="text-danger" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.removePoint} >Remove</a>
+                    <a className="text-info" style={style} onClick={props.insertBefore} >+ Before</a>
                     <br />
-                    <a className="text-dark" style={{ padding: 1, margin: 0, cursor: 'pointer', fontSize: 9 }} onClick={props.closeMenu} >Close</a>
+                    <a className="text-info" style={style} onClick={props.insertAfter} >+ After</a>
+                    <br />
+                    <a className="text-danger" style={style} onClick={props.removePoint} >Remove</a>
+                    <br />
+                    <a className="text-dark" style={style} onClick={props.closeMenu} >Close</a>
                 </foreignObject>
             </g>
         )
