@@ -3,18 +3,17 @@ import AnchorWithIcon from '../../navigation/AnchorWithIcon';
 import Rect from './../../../models/elements/Rect';
 import SvgPoint from './../../../models/elements/SvgPoint';
 export const WorksheetRect = (props: {
-    size: number,
+    height: number, width:number,
     onMouseMove(e: React.MouseEvent<SVGRectElement>): any,
     addPoint(e: React.MouseEvent<SVGRectElement>): void
-}) => {
-    const size = props.size;
+}) => { 
     return (
         <rect
             focusable="true" id="svg-screen"
             onMouseMove={props.onMouseMove}
             onClick={props.addPoint}
             //  onMouseDown={this.onMouseDown} onMouseUp={this.onMouseUp}onMouseMove={this.onMouseMove}
-            fill="transparent" x={0} y={0} width={size} height={size} />
+            fill="transparent" x={0} y={0} width={props.width} height={props.height} />
     )
 }
 

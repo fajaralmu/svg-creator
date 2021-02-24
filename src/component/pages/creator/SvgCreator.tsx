@@ -294,7 +294,7 @@ class SvgCreator extends BaseComponent {
                         {editMode ?
                             <g>
                                 <WorksheetRect onMouseMove={this.dragPoint}
-                                    size={w} addPoint={this.addPoint} />
+                                    width={w} height={h} addPoint={this.addPoint} />
                                 {elements.map((el, i) => {
                                     if (i == this.state.selectedIndex) return null
                                     return (
