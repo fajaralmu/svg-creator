@@ -13,6 +13,11 @@
   stroke-dashoffset: 1000;
   animation: dash 45s linear forwards;
 }
+.icon-svg-long {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: dash 7s linear forwards;
+}
 .welcome-svg-rect {
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;

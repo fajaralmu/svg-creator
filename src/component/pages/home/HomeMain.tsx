@@ -60,13 +60,17 @@ const Welcome = (props) => {
         </Fragment>
     )
 }
- 
-const Icon = (props) => {
-    return <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><g   className="welcome-svg "stroke="black" fill="transparent" stroke-width="2"> <path stroke-width="2" stroke="#20f08d" d="" /><path stroke-width="5" stroke="#ff0080" d="M 238 3 Q 262 40 235 69Q 214 91 194 111Q 158 140 172 175Q 185 196 201 219Q 168 193 152 163Q 135 137 169 111Q 200 89 220 68Q 237 50 241 35 Z "/><path stroke-width="5" stroke="#ff0080" d="M 286 83 Q 252 99 233 122Q 211 146 240 179Q 251 205 212 232Q 236 199 214 185Q 187 152 209 126Q 230 106 258 92 Z "/><path stroke-width="5" stroke="#004000" d="M 285 234 Q 162 250 117 240Q 105 238 126 228Q 138 224 155 219Q 99 224 85 240Q 83 249 132 254Q 194 258 263 244 Z "/><path stroke-width="5" stroke="#004000" d="M 251 274 Q 185 286 132 275Q 132 270 138 264Q 96 280 133 290Q 192 302 266 283 Z "/><path stroke-width="5" stroke="#004000" d="M 240 316 Q 192 333 143 316Q 142 311 147 309Q 119 316 133 330Q 185 351 260 328 Z "/><path stroke-width="5" stroke="#004000" d="M 318 339 Q 335 362 213 367Q 135 369 77 354Q 82 340 115 337Q 22 352 69 369Q 192 394 314 362Q 325 356 326 347 Z "/><path stroke-width="5" stroke="#004000" d="M 339 365 Q 316 385 281 388Q 258 393 215 393Q 201 394 178 393Q 142 394 105 385"/><path stroke-width="5" stroke="#004000" d="M 289 223 Q 333 215 327 250Q 324 272 283 293Q 335 276 344 243Q 339 220 310 215 Z "/></g></svg>
+  
+const KIIS = (props) => {
+    return <svg xmlns="http://www.w3.org/2000/svg" width="400" height="500"><g className="welcome-svg " stroke="black" fill="transparent" stroke-width="2"> 
+    <path fill="none" stroke-width="2" stroke="#20f08d" d="" /><path fill="none" stroke-width="5" stroke="#000000" d="M 159 276 Q 136 288 122 314Q 118 323 155 321Q 218 322 296 310Q 322 311 338 342Q 333 356 317 367Q 140 410 92 383Q 82 372 77 337"/><path fill="none" stroke-width="5" stroke="#000000" d="M 78 251 Q 82 293 84 330Q 83 375 149 371Q 254 374 324 345Q 312 331 287 334Q 202 350 117 345Q 105 339 112 319Q 120 282 159 247"/><path fill="none" stroke-width="5" stroke="#000000" d="M 159 276 L 159 276 L 159 247 " />
+    <path fill="none" stroke-width="5" stroke="#000000" d="M 78 251 L 78 251 L 67 263 L 77 337 " />
+    <path className="icon-svg-long" fill="#ffffff" stroke-width="5" stroke="#008000" d="M 93 286 Q 215 159 313 182Q 378 209 319 302Q 245 418 105 445Q 4 453 62 325Q 9 438 114 434Q 253 407 324 270Q 362 186 264 185Q 182 205 128 256 Z "/>
+    <circle className="welcome-svg-slow" fill="#ffffff" stroke-width="5" stroke="#ff0080" cx="253" cy="186" r="16.401219466856727" /></g></svg>
 }
-
 const PenSvg = (props) => { 
-    // return <Icon/>
+    // return <KIIS/   return <Icon/>
+    
     return (
         <svg  xmlns="http://www.w3.org/2000/svg" width="400" height="100">
             <g id="pen-body" className="welcome-svg "stroke="#343a40" fill="transparent" stroke-width="2">

@@ -11,9 +11,8 @@ import SvgItem from '../../../models/elements/SvgItem';
 import SvgPoint from '../../../models/elements/SvgPoint';
 import GeneralForm from './SettingForm';
 import { withRouter } from 'react-router-dom';
-import { BoundingRect, PointInfo, WorksheetRect } from './creatorHelper';
-import { ElementType } from '../../../constant/ElementType';
-import AnchorWithSvg from './../../navigation/AnchorWithSvg';
+import { BoundingRect, PointInfo, WorksheetRect, AddItemButtons } from './creatorHelper';
+import { ElementType } from '../../../constant/ElementType'; 
 import Points from './Points';
 
 class State {
@@ -44,7 +43,7 @@ class SvgCreator extends BaseComponent {
         this.setState({ selectedIndex: index });
     }
     onkeyup: (((this: Window | GlobalEventHandlers, ev: KeyboardEvent) => any) & ((this: Window, ev: KeyboardEvent) => any)) =
-        event => { this.straightLine = false; }
+        event => {  this.straightLine = false; }
 
     onkeypress: (((this: Window | GlobalEventHandlers, ev: KeyboardEvent) => any) & ((this: Window, ev: KeyboardEvent) => any)) =
         event => {
@@ -315,16 +314,7 @@ class SvgCreator extends BaseComponent {
                     </svg>
                 </div>
                 <div className="col-md-2 text-center">
-                    <div className=" btn-group-vertical">
-                        <span className="btn btn-dark">Items:  {elements.length}
-                        </span>
-                        <AnchorWithIcon onClick={(e) => { this.addSvgElement(ElementType.PATH) }} iconClassName="fas fa-draw-polygon" />
-                        <AnchorWithIcon onClick={(e) => { this.addSvgElement(ElementType.CIRCLE) }} iconClassName="far fa-circle" />
-                        <AnchorWithIcon onClick={(e) => { this.addSvgElement(ElementType.RECT) }} iconClassName="far fa-square" />
-                        <AnchorWithSvg onClick={(e) => { this.addSvgElement(ElementType.CURVE) }} icon="curve" />
-                        <AnchorWithSvg onClick={(e) => { this.addSvgElement(ElementType.ELLIPSE) }} icon="ellips" />
-
-                    </div>
+                   <AddItemButtons elementCount={elements.length} addItem={this.addSvgElement} />
                     <div className="container-fluid">
                         {selectedPoint ?
                             <PointInfo dragMode={this.state.dragMode} onDelete={this.removePoint} point={selectedPoint} />

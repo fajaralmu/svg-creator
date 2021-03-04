@@ -1,7 +1,9 @@
-import React from 'react'
+import React  from 'react'
+import { ElementType } from '../../../constant/ElementType';
 import AnchorWithIcon from '../../navigation/AnchorWithIcon';
 import Rect from './../../../models/elements/Rect';
 import SvgPoint from './../../../models/elements/SvgPoint';
+import AnchorWithSvg from './../../navigation/AnchorWithSvg';
 export const WorksheetRect = (props: {
     height: number, width:number,
     onMouseMove(e: React.MouseEvent<SVGRectElement>): any,
@@ -44,6 +46,22 @@ export const PointInfo = (props: { onDelete(): any, point: SvgPoint, dragMode:bo
             </li>
 
         </ul>
+    )
+}
+
+export const AddItemButtons = (props:{elementCount:number, addItem  (type:ElementType):any}) => {
+
+    return (
+        <div className=" btn-group-vertical">
+        <span className="btn btn-dark">Items:  {props.elementCount}
+        </span>
+        <AnchorWithIcon onClick={(e) => { props.addItem(ElementType.PATH) }} iconClassName="fas fa-draw-polygon" />
+        <AnchorWithIcon onClick={(e) => { props.addItem(ElementType.CIRCLE) }} iconClassName="far fa-circle" />
+        <AnchorWithIcon onClick={(e) => { props.addItem(ElementType.RECT) }} iconClassName="far fa-square" />
+        <AnchorWithSvg onClick={(e) => { props.addItem(ElementType.CURVE) }} icon="curve" />
+        <AnchorWithSvg onClick={(e) => { props.addItem(ElementType.ELLIPSE) }} icon="ellips" />
+
+    </div>
     )
 }
 
