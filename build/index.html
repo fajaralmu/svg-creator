@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="og: http://ogp.me/ns#">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="favicon.ico" />
@@ -9,7 +9,7 @@
       name="description"
       content="Web site created using create-react-app"
     />
-    <meta property="og:image" itemprop="image" 
+    <meta property="og:image" 
     content="http://developmentmode.000webhostapp.com/general_storage/images/Svg_create_screen.JPG">
     
     <link rel="stylesheet" href="resources/css/bootstrap.min.css" />
@@ -25,7 +25,9 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-     
+     <form>
+    <input name="remove_this" type="hidden" id="rootPath" value="/" />
+    </form>
     <div id="root"></div>
     <script>
       !(function (e) {
